@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 interface HeaderProps {
   sidebarOpen: boolean
   onToggleSidebar: () => void
-  user: { name: string; role: string } | null
+  user: { name: string; username: string } | null
   onLogout: () => void
 }
 
@@ -43,7 +43,7 @@ export default function Header({ sidebarOpen, onToggleSidebar, user, onLogout }:
               </div>
               <div className="user-info">
                 <span className="user-name">{user.name}</span>
-                <span className="user-role">{user.role}</span>
+                <span className="user-username">{user.username}</span>
               </div>
               <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '4px' }}>▼</span>
             </div>
@@ -93,7 +93,7 @@ export default function Header({ sidebarOpen, onToggleSidebar, user, onLogout }:
             </div>
             <div className="user-info">
               <span className="user-name" style={{ color: 'var(--primary-dark)' }}>Đăng nhập tài khoản</span>
-              <span className="user-role">Chưa đăng nhập</span>
+              <span className="user-username">Chưa đăng nhập</span>
             </div>
           </Link>
         )}

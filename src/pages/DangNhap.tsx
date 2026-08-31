@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { API_ENDPOINTS } from '../config/apiConfig'
 
 interface DangNhapProps {
-  onLogin?: (user: { name: string; role: string }) => void
+  onLogin?: (user: { name: string; username: string }) => void
 }
 
 export default function DangNhap({ onLogin }: DangNhapProps) {
@@ -13,22 +14,42 @@ export default function DangNhap({ onLogin }: DangNhapProps) {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    setTimeout(() => {
-      setLoading(false)
-      if (username === 'admin' && password === '123456') {
-        const user = { name: 'Admin', role: 'Quản trị viên' }
+    try {
+      const response = await fetch(API_ENDPOINTS.LOGIN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ten_dang_nhap: username,
+          mat_khau: password,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && response.status === 200) {
+        // Đăng nhập thành công → lưu thông tin user vào localStorage
+        const user = {
+          name: data.user.ho_ten,
+          username: data.user.ten_dang_nhap || 'Người dùng',
+        }
         localStorage.setItem('admin_user', JSON.stringify(user))
-        onLogin?.(user)
+        onLogin?.({ name: user.name, username: user.username })
         navigate('/')
       } else {
-        setError('Tên đăng nhập hoặc mật khẩu không đúng!')
+        // Sai tài khoản/mật khẩu → hiện lỗi, KHÔNG vào trang chủ
+        setError(data.message || 'Tên đăng nhập hoặc mật khẩu không đúng!')
       }
-    }, 900)
+    } catch (err) {
+      // Lỗi kết nối server
+      setError('Không thể kết nối đến server. Vui lòng kiểm tra backend!')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -128,10 +149,6 @@ export default function DangNhap({ onLogin }: DangNhapProps) {
           </svg>
           Đăng nhập với Google
         </button>
-
-        <div style={{ marginTop: '20px', padding: '14px', background: 'var(--primary-pale)', borderRadius: 'var(--radius-sm)', fontSize: '12px', color: 'var(--text-secondary)', textAlign: 'center' }}>
-          💡 Demo: <strong>admin</strong> / <strong>123456</strong>
-        </div>
       </div>
     </div>
   )

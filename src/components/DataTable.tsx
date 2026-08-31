@@ -12,14 +12,16 @@ interface DataTableProps<T> {
   columns: Column<T>[]
   data: T[]
   pageSize?: number
+  rowKey?: keyof T  // field dùng làm key cho mỗi row (mặc định 'id')
 }
 
-export default function DataTable<T extends { id: number }>({
+export default function DataTable<T extends Record<string, unknown>>({
   title,
   icon,
   columns,
   data,
   pageSize = 6,
+  rowKey = 'id' as keyof T,
 }: DataTableProps<T>) {
   const [page, setPage] = useState(1)
   const totalPages = Math.ceil(data.length / pageSize)
@@ -102,7 +104,7 @@ export default function DataTable<T extends { id: number }>({
               </tr>
             ) : (
               pageData.map((row, idx) => (
-                <tr key={row.id}>
+                <tr key={String(row[rowKey])}>
                   <td style={{ color: 'var(--text-muted)', fontWeight: 500 }}>
                     {start + idx + 1}
                   </td>
@@ -116,7 +118,7 @@ export default function DataTable<T extends { id: number }>({
                   <td>
                     <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                       <button
-                        id={`edit-btn-${row.id}`}
+                      id={`edit-btn-${String(row[rowKey])}`}
                         style={{
                           width: '28px', height: '28px', borderRadius: '6px',
                           background: 'rgba(94,184,212,0.12)', border: '1px solid var(--border)',
@@ -135,7 +137,7 @@ export default function DataTable<T extends { id: number }>({
                         ✏️
                       </button>
                       <button
-                        id={`delete-btn-${row.id}`}
+                        id={`delete-btn-${String(row[rowKey])}`}
                         style={{
                           width: '28px', height: '28px', borderRadius: '6px',
                           background: 'rgba(231,76,60,0.08)', border: '1px solid rgba(231,76,60,0.2)',
@@ -151,7 +153,7 @@ export default function DataTable<T extends { id: number }>({
                         }}
                         title="Xóa"
                       >
-                        🗑️
+                        ❌
                       </button>
                     </div>
                   </td>

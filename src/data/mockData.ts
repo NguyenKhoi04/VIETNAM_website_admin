@@ -2,14 +2,12 @@
 // Mock Data - Schema theo cơ sở dữ liệu hệ thống học tiếng Việt
 // ============================================================
 
+// Schema khớp với bảng nguoi_dung trong MySQL
 export interface User {
   id: number
-  username: string
-  email: string
-  ho_ten: string
-  ngay_tao: string
-  trang_thai: 'active' | 'inactive'
-  vai_tro: string
+  ten_dang_nhap: string  // tên đăng nhập
+  ho_ten: string         // họ tên đầy đủ
+  doi_tuong: string      // vai trò / đối tượng (VD: 'Học viên', 'Giáo viên', 'Admin')
 }
 
 export interface BaiHoc {
@@ -66,16 +64,9 @@ export interface KetQua {
 }
 
 // ===== DATA =====
-export const users: User[] = [
-  { id: 1, username: 'admin', email: 'admin@vietnam.edu.vn', ho_ten: 'Nguyễn Văn Admin', ngay_tao: '2024-01-15', trang_thai: 'active', vai_tro: 'Quản trị viên' },
-  { id: 2, username: 'nguyen.thi.lan', email: 'lan.nguyen@gmail.com', ho_ten: 'Nguyễn Thị Lan', ngay_tao: '2024-02-10', trang_thai: 'active', vai_tro: 'Học viên' },
-  { id: 3, username: 'tran.van.minh', email: 'minh.tran@yahoo.com', ho_ten: 'Trần Văn Minh', ngay_tao: '2024-02-18', trang_thai: 'active', vai_tro: 'Học viên' },
-  { id: 4, username: 'le.thi.hoa', email: 'hoa.le@outlook.com', ho_ten: 'Lê Thị Hoa', ngay_tao: '2024-03-05', trang_thai: 'inactive', vai_tro: 'Giáo viên' },
-  { id: 5, username: 'pham.duc.cuong', email: 'cuong.pham@gmail.com', ho_ten: 'Phạm Đức Cường', ngay_tao: '2024-03-12', trang_thai: 'active', vai_tro: 'Học viên' },
-  { id: 6, username: 'hoang.mai.linh', email: 'linh.hoang@gmail.com', ho_ten: 'Hoàng Mai Linh', ngay_tao: '2024-04-01', trang_thai: 'active', vai_tro: 'Giáo viên' },
-  { id: 7, username: 'do.ngoc.hung', email: 'hung.do@gmail.com', ho_ten: 'Đỗ Ngọc Hùng', ngay_tao: '2024-04-15', trang_thai: 'active', vai_tro: 'Học viên' },
-  { id: 8, username: 'vu.thi.bich', email: 'bich.vu@email.com', ho_ten: 'Vũ Thị Bích', ngay_tao: '2024-04-20', trang_thai: 'inactive', vai_tro: 'Học viên' },
-]
+// Dữ liệu users sẽ được fetch từ API /api/users (bảng nguoi_dung)
+// Mảng này chỉ là fallback / placeholder
+export const users: User[] = []
 
 export const baiHocList: BaiHoc[] = [
   { id: 1, tieu_de: 'Chào hỏi cơ bản', mo_ta: 'Học cách chào hỏi trong tiếng Việt', cap_do: 'A1', loai_ky_nang: 'Tập đọc', thoi_luong: '20 phút', ngay_tao: '2024-01-10', trang_thai: 'active' },
