@@ -4,10 +4,15 @@
 
 // Schema khớp với bảng nguoi_dung trong MySQL
 export interface User {
-  id: number
-  ten_dang_nhap: string  // tên đăng nhập
-  ho_ten: string         // họ tên đầy đủ
-  doi_tuong: string      // vai trò / đối tượng (VD: 'Học viên', 'Giáo viên', 'Admin')
+  id_nguoi_dung: number
+  ten_dang_nhap: string
+  mat_khau?: string
+  email?: string
+  ho_ten: string
+  lop?: string
+  ngay_tao?: string | Date  // MySQL có thể trả về string hoặc Date object
+  trang_thai?: number        // 1 = Hoạt động, 0 = Không hoạt động
+  doi_tuong: string
 }
 
 export interface BaiHoc {
@@ -17,7 +22,7 @@ export interface BaiHoc {
   cap_do: 'A1' | 'A2' | 'B1' | 'B2' | 'C1'
   loai_ky_nang: string
   thoi_luong: string
-  ngay_tao: string
+  ngay_tao: string | Date  // MySQL có thể trả về string hoặc Date object
   trang_thai: 'active' | 'inactive'
 }
 

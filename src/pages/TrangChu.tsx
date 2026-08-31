@@ -74,7 +74,16 @@ export default function TrangChu() {
               { key: 'mat_khau', label: 'Mật khẩu' },
               { key: 'email', label: 'Email' },
               { key: 'lop', label: 'Lớp' },
-              { key: 'ngay_tao', label: 'Ngày tạo' },
+              {
+                key: 'ngay_tao', label: 'Ngày tạo',
+                // Hiển thị định dạng ngày/tháng/năm Việt Nam
+                render: (v) => {
+                  if (!v) return '—'
+                  const date = new Date(v as string | number)
+                  return date.toLocaleDateString('vi-VN')
+                }
+              },
+
               {
                 key: 'trang_thai',
                 label: 'Trạng thái',
@@ -98,10 +107,10 @@ export default function TrangChu() {
                     'phu_huynh': 'Phụ huynh'
                   }
                   const colorMap: Record<string, React.CSSProperties> = {
-                    'quan_tri':          { background: 'rgba(231,76,60,0.12)',  color: '#c0392b', border: '1px solid rgba(231,76,60,0.3)' },
+                    'quan_tri': { background: 'rgba(231,76,60,0.12)', color: '#c0392b', border: '1px solid rgba(231,76,60,0.3)' },
                     'hoc_sinh_tieu_hoc': { background: 'rgba(39,174,96,0.12)', color: '#1e8449', border: '1px solid rgba(39,174,96,0.3)' },
-                    'nguoi_nuoc_ngoai':  { background: 'rgba(94,184,212,0.12)',color: '#2471a3', border: '1px solid rgba(94,184,212,0.3)' },
-                    'phu_huynh':         { background: 'rgba(243,156,18,0.12)',color: '#b7770d', border: '1px solid rgba(243,156,18,0.3)' },
+                    'nguoi_nuoc_ngoai': { background: 'rgba(94,184,212,0.12)', color: '#2471a3', border: '1px solid rgba(94,184,212,0.3)' },
+                    'phu_huynh': { background: 'rgba(243,156,18,0.12)', color: '#b7770d', border: '1px solid rgba(243,156,18,0.3)' },
                   }
                   return (
                     <span className="status-badge" style={colorMap[role] ?? {}}>
