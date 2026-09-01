@@ -22,3 +22,20 @@ cd backend
 npm install
 node server.js
 ```
+
+## cách chạy chỗ thêm tập đọc
+① Nhập bài đọc vào Rich Editor bình thường
+        ↓
+② Bấm nút  🔴 Bôi từ khó  (góc phải thanh điều khiển)
+        ↓
+③ Editor đổi sang chế độ bôi (viền đỏ nhạt, con trỏ ✛, toolbar nền đỏ)
+        ↓
+④ Dùng chuột tô chọn từ/cụm từ khó trong văn bản
+        ↓ (tự động)
+   • Từ đổi màu đỏ in đậm ngay trong văn bản
+   • Tự động thêm vào danh sách "Hiểu từ khó" bên dưới (có ô Từ được điền sẵn)
+   • Trang cuộn mượt xuống phần từ khó
+        ↓
+⑤ Nhập giải thích nghĩa & test âm thanh cho từng từ
+        ↓
+⑥ Bấm  ❌ Tắt bôi từ khó  khi xong

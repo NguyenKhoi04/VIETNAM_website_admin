@@ -3,6 +3,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Sidebar from '../components/Sidebar'
 import DataTable from '../components/DataTable'
+import AddTapDoc from './AddTapDoc'
 import { API_ENDPOINTS } from '../config/apiConfig'
 import type { User } from '../data/mockData'
 import {
@@ -123,12 +124,15 @@ export default function TrangChu() {
           />
         )
 
-      case 'bai-hoc':
+      case 'add-tap-doc':
+        return <AddTapDoc />
+
+      case 'ky-nang':
       case 'tap-doc':
       case 'tap-viet':
       case 'nghe-hieu':
       case 'noi': {
-        const filtered = activeItem === 'bai-hoc'
+        const filtered = activeItem === 'ky-nang'
           ? baiHocList
           : baiHocList.filter(b => {
             const map: Record<string, string> = { 'tap-doc': 'Tập đọc', 'tap-viet': 'Tập viết', 'nghe-hieu': 'Nghe hiểu', 'noi': 'Nói' }
@@ -136,10 +140,10 @@ export default function TrangChu() {
           })
 
         const labels: Record<string, string> = {
-          'bai-hoc': 'Bài học', 'tap-doc': 'Tập đọc', 'tap-viet': 'Tập viết', 'nghe-hieu': 'Nghe hiểu', 'noi': 'Nói'
+          'ky-nang': 'Bài học', 'tap-doc': 'Tập đọc', 'tap-viet': 'Tập viết', 'nghe-hieu': 'Nghe hiểu', 'noi': 'Nói'
         }
         const icons: Record<string, string> = {
-          'bai-hoc': '📚', 'tap-doc': '📖', 'tap-viet': '✏️', 'nghe-hieu': '🎧', 'noi': '🎤'
+          'ky-nang': '📚', 'tap-doc': '📖', 'tap-viet': '✏️', 'nghe-hieu': '🎧', 'noi': '🎤'
         }
 
         return (

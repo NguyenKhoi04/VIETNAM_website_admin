@@ -137,9 +137,15 @@ export const sidebarMenu: SidebarItem[] = [
   {
     id: 'bai-hoc',
     label: 'Bài học',
+    icon: '📁',
+  },
+  {
+    id: 'ky-nang',
+    label: 'Kỹ năng',
     icon: '📚',
     children: [
       { id: 'tap-doc', label: 'Tập đọc', icon: '📖' },
+      { id: 'add-tap-doc', label: 'Thêm bài tập đọc', icon: '➕' },
       { id: 'tap-viet', label: 'Tập viết', icon: '✏️' },
       { id: 'nghe-hieu', label: 'Nghe hiểu', icon: '🎧' },
       { id: 'noi', label: 'Nói', icon: '🎤' },

@@ -8,7 +8,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, activeItem, onSelect }: SidebarProps) {
-  const [expandedItems, setExpandedItems] = useState<string[]>(['bai-hoc'])
+  const [expandedItems, setExpandedItems] = useState<string[]>(['ky-nang'])
 
   const toggleExpand = (id: string) => {
     setExpandedItems(prev =>
