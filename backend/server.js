@@ -12,7 +12,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '123456',
-  database: 'luyenviet_chinhta_vietnam',
+  database: 'luyenviet_chinhta_vn_1thang10',
 });
 
 // 2. Kiểm tra kết nối Database
@@ -32,12 +32,12 @@ app.get('/api/status', (req, res) => {
 // 4. API đăng nhập
 app.post('/api/login', (req, res) => {
   // Nhận linh hoạt cả 2 kiểu đặt tên key từ frontend
-  const ten_dang_nhap = req.body.ten_dang_nhap || req.body.username;
+  const ten_dangnhap = req.body.ten_dangnhap || req.body.username;
   const mat_khau = req.body.mat_khau || req.body.password;
 
-  const sql = 'SELECT * FROM nguoi_dung WHERE ten_dang_nhap = ? AND mat_khau = ?';
+  const sql = 'SELECT * FROM nguoi_dung WHERE ten_dangnhap = ? AND mat_khau = ?';
 
-  db.query(sql, [ten_dang_nhap, mat_khau], (err, results) => {
+  db.query(sql, [ten_dangnhap, mat_khau], (err, results) => {
     if (err) {
       console.error('Lỗi SQL chi tiết:', err);
       return res.status(500).json({ message: err.message || 'Lỗi truy vấn server' });
@@ -48,7 +48,7 @@ app.post('/api/login', (req, res) => {
         message: 'Đăng nhập thành công!',
         user: {
           id: results[0].id,
-          ten_dang_nhap: results[0].ten_dang_nhap,
+          ten_dangnhap: results[0].ten_dangnhap,
           ho_ten: results[0].ho_ten,
           doi_tuong: results[0].doi_tuong,
         },
@@ -61,10 +61,10 @@ app.post('/api/login', (req, res) => {
 
 // 6. API đăng ký
 app.post('/api/register', (req, res) => {
-  const { ten_dang_nhap, mat_khau } = req.body;
+  const { ten_dangnhap, mat_khau } = req.body;
 
-  const sql = 'INSERT INTO nguoi_dung (ten_dang_nhap, mat_khau) VALUES (?, ?)';
-  db.query(sql, [ten_dang_nhap, mat_khau], (err, results) => {
+  const sql = 'INSERT INTO nguoi_dung (ten_dangnhap, mat_khau) VALUES (?, ?)';
+  db.query(sql, [ten_dangnhap, mat_khau], (err, results) => {
     if (err) {
       console.error('Lỗi SQL chi tiết:', err);
       return res.status(500).json({ message: err.message || 'Lỗi truy vấn server' });
@@ -84,14 +84,14 @@ app.get('/api/roles', (req, res) => {
   });
 });
 
-// 8. API lấy thông tin người dùng (tìm theo ten_dang_nhap HOẶC ho_ten)
+// 8. API lấy thông tin người dùng (tìm theo ten_dangnhap HOẶC ho_ten)
 app.get('/api/user-info/:identifier', (req, res) => {
   const { identifier } = req.params;
 
   const sql = `
-    SELECT id_nguoi_dung, ho_ten, ten_dang_nhap, doi_tuong 
+    SELECT id_nguoi_dung, ho_ten, ten_dangnhap, doi_tuong 
     FROM nguoi_dung 
-    WHERE ten_dang_nhap = ? OR ho_ten = ? 
+    WHERE ten_dangnhap = ? OR ho_ten = ? 
     LIMIT 1
   `;
 
@@ -172,7 +172,7 @@ app.get('/api/skills', (req, res) => {
 
 // API lấy danh sách người dùng (dùng cho trang admin - bảng Users)
 app.get('/api/users', (req, res) => {
-  const sql = 'SELECT id_nguoi_dung, ten_dang_nhap, ho_ten, mat_khau, email, lop, ngay_tao, trang_thai, doi_tuong FROM nguoi_dung ORDER BY id_nguoi_dung ASC';
+  const sql = 'SELECT id_nguoi_dung, ten_dangnhap, ho_ten, mat_khau, email, lop, ngay_tao, trang_thai, doi_tuong FROM nguoi_dung ORDER BY id_nguoi_dung ASC';
   db.query(sql, (err, results) => {
     if (err) {
       console.error('Lỗi SQL:', err);
@@ -182,9 +182,9 @@ app.get('/api/users', (req, res) => {
   });
 });
 
-// API lấy danh sách người dùng (cũ - chỉ trả id + ten_dang_nhap)
+// API lấy danh sách người dùng (cũ - chỉ trả id + ten_dangnhap)
 app.get('/api/data', (req, res) => {
-  const sql = 'SELECT id_nguoi_dung, ten_dang_nhap FROM nguoi_dung';
+  const sql = 'SELECT id_nguoi_dung, ten_dangnhap FROM nguoi_dung';
   db.query(sql, (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });

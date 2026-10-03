@@ -39,3 +39,6 @@ node server.js
 ⑤ Nhập giải thích nghĩa & test âm thanh cho từng từ
         ↓
 ⑥ Bấm  ❌ Tắt bôi từ khó  khi xong
+
+Cách chạy: npm run dev
+
