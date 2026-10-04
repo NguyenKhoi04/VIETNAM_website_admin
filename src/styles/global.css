@@ -407,6 +407,79 @@ input {
   margin: 8px 12px;
 }
 
+/* ── Sidebar Zone (phân vùng) ── */
+.sidebar-zone-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(94, 184, 212, 0.1), rgba(168, 216, 234, 0.08));
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+  transition: var(--transition);
+}
+
+.sidebar-zone-header:hover {
+  background: linear-gradient(135deg, rgba(94, 184, 212, 0.18), rgba(168, 216, 234, 0.14));
+}
+
+.sidebar-zone-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.sidebar-zone-label {
+  flex: 1;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: var(--accent);
+}
+
+/* ── L1 subitem có con (chứa chevron nhỏ) ── */
+.sidebar-subitem.has-children {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.sidebar-chevron-sm {
+  font-size: 10px;
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.sidebar-chevron-sm.open {
+  transform: rotate(90deg);
+}
+
+/* ── L2 nested submenu ── */
+.sidebar-submenu-l2 {
+  overflow: hidden;
+  transition: max-height 0.28s ease;
+}
+
+/* ── L2 leaf items ── */
+.sidebar-subitem-l2 {
+  padding-left: 54px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.sidebar-subitem-l2:hover {
+  color: var(--primary-dark);
+  background: rgba(94, 184, 212, 0.06);
+}
+
+.sidebar-subitem-l2.active {
+  color: var(--primary-dark);
+  font-weight: 600;
+  background: rgba(94, 184, 212, 0.1);
+}
+
 /* ===== FOOTER ===== */
 .footer {
   position: fixed;

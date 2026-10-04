@@ -193,6 +193,255 @@ app.get('/api/data', (req, res) => {
   });
 });
 
+// ============================================================
+// API NHÓM BÀI ĐỌC (bai_doc + 4 bảng phụ)
+// ============================================================
+
+// ── 1. bai_doc ──────────────────────────────────────────────
+
+// Lấy tất cả bài đọc (có thể lọc theo lop_id)
+app.get('/api/bai-doc', (req, res) => {
+  const { lop_id } = req.query;
+  let sql = 'SELECT * FROM bai_doc';
+  const params = [];
+  if (lop_id) { sql += ' WHERE lop_id = ?'; params.push(lop_id); }
+  sql += ' ORDER BY lop_id, thu_tu ASC';
+  db.query(sql, params, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+// Lấy 1 bài đọc theo id
+app.get('/api/bai-doc/:id', (req, res) => {
+  db.query('SELECT * FROM bai_doc WHERE id = ?', [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ message: 'Không tìm thấy bài đọc' });
+    res.json(results[0]);
+  });
+});
+
+// Thêm bài đọc mới
+app.post('/api/bai-doc', (req, res) => {
+  const { lop_id, chu_de_id, tuan_so, bai_so, ten_bai, hinh_anh_bai, tac_gia, noi_dung_day_du, thu_tu } = req.body;
+  const sql = `INSERT INTO bai_doc (lop_id, chu_de_id, tuan_so, bai_so, ten_bai, hinh_anh_bai, tac_gia, noi_dung_day_du, thu_tu)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  db.query(sql, [lop_id, chu_de_id, tuan_so, bai_so, ten_bai, hinh_anh_bai, tac_gia, noi_dung_day_du, thu_tu || 1], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ message: 'Thêm bài đọc thành công!', id: result.insertId });
+  });
+});
+
+// Cập nhật bài đọc
+app.put('/api/bai-doc/:id', (req, res) => {
+  const { lop_id, chu_de_id, tuan_so, bai_so, ten_bai, hinh_anh_bai, tac_gia, noi_dung_day_du, thu_tu } = req.body;
+  const sql = `UPDATE bai_doc SET lop_id=?, chu_de_id=?, tuan_so=?, bai_so=?, ten_bai=?, hinh_anh_bai=?, tac_gia=?, noi_dung_day_du=?, thu_tu=? WHERE id=?`;
+  db.query(sql, [lop_id, chu_de_id, tuan_so, bai_so, ten_bai, hinh_anh_bai, tac_gia, noi_dung_day_du, thu_tu, req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Cập nhật thành công!' });
+  });
+});
+
+// Xóa bài đọc
+app.delete('/api/bai-doc/:id', (req, res) => {
+  db.query('DELETE FROM bai_doc WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Xóa bài đọc thành công!' });
+  });
+});
+
+// ── 2. doan_van ──────────────────────────────────────────────
+
+// Lấy tất cả đoạn văn theo bai_doc_id
+app.get('/api/doan-van', (req, res) => {
+  const { bai_doc_id } = req.query;
+  let sql = 'SELECT * FROM doan_van';
+  const params = [];
+  if (bai_doc_id) { sql += ' WHERE bai_doc_id = ?'; params.push(bai_doc_id); }
+  sql += ' ORDER BY so_doan ASC';
+  db.query(sql, params, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+app.get('/api/doan-van/:id', (req, res) => {
+  db.query('SELECT * FROM doan_van WHERE id = ?', [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ message: 'Không tìm thấy đoạn văn' });
+    res.json(results[0]);
+  });
+});
+
+app.post('/api/doan-van', (req, res) => {
+  const { bai_doc_id, so_doan, noi_dung, ghi_chu } = req.body;
+  const sql = 'INSERT INTO doan_van (bai_doc_id, so_doan, noi_dung, ghi_chu) VALUES (?, ?, ?, ?)';
+  db.query(sql, [bai_doc_id, so_doan, noi_dung, ghi_chu], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ message: 'Thêm đoạn văn thành công!', id: result.insertId });
+  });
+});
+
+app.put('/api/doan-van/:id', (req, res) => {
+  const { bai_doc_id, so_doan, noi_dung, ghi_chu } = req.body;
+  db.query('UPDATE doan_van SET bai_doc_id=?, so_doan=?, noi_dung=?, ghi_chu=? WHERE id=?',
+    [bai_doc_id, so_doan, noi_dung, ghi_chu, req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Cập nhật đoạn văn thành công!' });
+  });
+});
+
+app.delete('/api/doan-van/:id', (req, res) => {
+  db.query('DELETE FROM doan_van WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Xóa đoạn văn thành công!' });
+  });
+});
+
+// ── 3. am_thanh_bai_doc ──────────────────────────────────────
+
+// Lấy âm thanh theo bai_doc_id (có thể lọc thêm theo loai)
+app.get('/api/am-thanh-bai-doc', (req, res) => {
+  const { bai_doc_id, loai } = req.query;
+  let sql = 'SELECT * FROM am_thanh_bai_doc WHERE 1=1';
+  const params = [];
+  if (bai_doc_id) { sql += ' AND bai_doc_id = ?'; params.push(bai_doc_id); }
+  if (loai)       { sql += ' AND loai = ?';        params.push(loai); }
+  db.query(sql, params, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+app.get('/api/am-thanh-bai-doc/:id', (req, res) => {
+  db.query('SELECT * FROM am_thanh_bai_doc WHERE id = ?', [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ message: 'Không tìm thấy âm thanh' });
+    res.json(results[0]);
+  });
+});
+
+app.post('/api/am-thanh-bai-doc', (req, res) => {
+  const { bai_doc_id, doan_id, loai, ma_key, duong_dan } = req.body;
+  const sql = 'INSERT INTO am_thanh_bai_doc (bai_doc_id, doan_id, loai, ma_key, duong_dan) VALUES (?, ?, ?, ?, ?)';
+  db.query(sql, [bai_doc_id, doan_id || null, loai || 'toan_bai', ma_key, duong_dan], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ message: 'Thêm âm thanh thành công!', id: result.insertId });
+  });
+});
+
+app.put('/api/am-thanh-bai-doc/:id', (req, res) => {
+  const { bai_doc_id, doan_id, loai, ma_key, duong_dan } = req.body;
+  db.query('UPDATE am_thanh_bai_doc SET bai_doc_id=?, doan_id=?, loai=?, ma_key=?, duong_dan=? WHERE id=?',
+    [bai_doc_id, doan_id || null, loai, ma_key, duong_dan, req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Cập nhật âm thanh thành công!' });
+  });
+});
+
+app.delete('/api/am-thanh-bai-doc/:id', (req, res) => {
+  db.query('DELETE FROM am_thanh_bai_doc WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Xóa âm thanh thành công!' });
+  });
+});
+
+// ── 4. tu_kho ────────────────────────────────────────────────
+
+app.get('/api/tu-kho', (req, res) => {
+  const { bai_doc_id } = req.query;
+  let sql = 'SELECT * FROM tu_kho';
+  const params = [];
+  if (bai_doc_id) { sql += ' WHERE bai_doc_id = ?'; params.push(bai_doc_id); }
+  sql += ' ORDER BY thu_tu ASC';
+  db.query(sql, params, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+app.get('/api/tu-kho/:id', (req, res) => {
+  db.query('SELECT * FROM tu_kho WHERE id = ?', [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ message: 'Không tìm thấy từ khó' });
+    res.json(results[0]);
+  });
+});
+
+app.post('/api/tu-kho', (req, res) => {
+  const { bai_doc_id, tu, giai_thich, am_thanh, ma_key, thu_tu } = req.body;
+  const sql = 'INSERT INTO tu_kho (bai_doc_id, tu, giai_thich, am_thanh, ma_key, thu_tu) VALUES (?, ?, ?, ?, ?, ?)';
+  db.query(sql, [bai_doc_id, tu, giai_thich, am_thanh, ma_key, thu_tu || 1], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ message: 'Thêm từ khó thành công!', id: result.insertId });
+  });
+});
+
+app.put('/api/tu-kho/:id', (req, res) => {
+  const { bai_doc_id, tu, giai_thich, am_thanh, ma_key, thu_tu } = req.body;
+  db.query('UPDATE tu_kho SET bai_doc_id=?, tu=?, giai_thich=?, am_thanh=?, ma_key=?, thu_tu=? WHERE id=?',
+    [bai_doc_id, tu, giai_thich, am_thanh, ma_key, thu_tu, req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Cập nhật từ khó thành công!' });
+  });
+});
+
+app.delete('/api/tu-kho/:id', (req, res) => {
+  db.query('DELETE FROM tu_kho WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Xóa từ khó thành công!' });
+  });
+});
+
+// ── 5. cau_hoi_bai_doc ───────────────────────────────────────
+
+app.get('/api/cau-hoi-bai-doc', (req, res) => {
+  const { bai_doc_id } = req.query;
+  let sql = 'SELECT * FROM cau_hoi_bai_doc';
+  const params = [];
+  if (bai_doc_id) { sql += ' WHERE bai_doc_id = ?'; params.push(bai_doc_id); }
+  sql += ' ORDER BY so_cau ASC';
+  db.query(sql, params, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+app.get('/api/cau-hoi-bai-doc/:id', (req, res) => {
+  db.query('SELECT * FROM cau_hoi_bai_doc WHERE id = ?', [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ message: 'Không tìm thấy câu hỏi' });
+    res.json(results[0]);
+  });
+});
+
+app.post('/api/cau-hoi-bai-doc', (req, res) => {
+  const { bai_doc_id, so_cau, noi_dung_cau, dap_an, am_thanh_cau, am_thanh_dap, ma_key_cau, ma_key_dap } = req.body;
+  const sql = `INSERT INTO cau_hoi_bai_doc (bai_doc_id, so_cau, noi_dung_cau, dap_an, am_thanh_cau, am_thanh_dap, ma_key_cau, ma_key_dap)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  db.query(sql, [bai_doc_id, so_cau, noi_dung_cau, dap_an, am_thanh_cau, am_thanh_dap, ma_key_cau, ma_key_dap], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ message: 'Thêm câu hỏi thành công!', id: result.insertId });
+  });
+});
+
+app.put('/api/cau-hoi-bai-doc/:id', (req, res) => {
+  const { bai_doc_id, so_cau, noi_dung_cau, dap_an, am_thanh_cau, am_thanh_dap, ma_key_cau, ma_key_dap } = req.body;
+  const sql = `UPDATE cau_hoi_bai_doc SET bai_doc_id=?, so_cau=?, noi_dung_cau=?, dap_an=?, am_thanh_cau=?, am_thanh_dap=?, ma_key_cau=?, ma_key_dap=? WHERE id=?`;
+  db.query(sql, [bai_doc_id, so_cau, noi_dung_cau, dap_an, am_thanh_cau, am_thanh_dap, ma_key_cau, ma_key_dap, req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Cập nhật câu hỏi thành công!' });
+  });
+});
+
+app.delete('/api/cau-hoi-bai-doc/:id', (req, res) => {
+  db.query('DELETE FROM cau_hoi_bai_doc WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Xóa câu hỏi thành công!' });
+  });
+});
+
+// ============================================================
 // Khởi chạy server tại cổng 5000
 const PORT = 5000;
 app.listen(PORT, '0.0.0.0', () => {

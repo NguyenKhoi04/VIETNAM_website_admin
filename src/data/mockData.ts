@@ -349,7 +349,7 @@ export const ketQuaList: KetQua[] = [
   },
 ];
 
-// ===== SIDEBAR MENU =====
+// ===== SIDEBAR MENU (2 phân vùng) =====
 export interface SidebarItem {
   id: string;
   label: string;
@@ -357,57 +357,106 @@ export interface SidebarItem {
   children?: SidebarItem[];
 }
 
-export const sidebarMenu: SidebarItem[] = [
+export interface SidebarZone {
+  zoneId: string;
+  zoneLabel: string;
+  zoneIcon: string;
+  items: SidebarItem[];
+}
+
+export const sidebarZones: SidebarZone[] = [
+  // ── PHÂN VÙNG 1: HỌC SINH TIỂU HỌC ──────────────────────
   {
-    id: "dashboard",
-    label: "Tổng quan",
-    icon: "📊",
-  },
-  {
-    id: "users",
-    label: "Người dùng",
-    icon: "👥",
-  },
-  {
-    id: "bai-hoc",
-    label: "Bài học",
-    icon: "📁",
-  },
-  {
-    id: "ky-nang",
-    label: "Kỹ năng",
-    icon: "📚",
-    children: [
-      { id: "tap-doc", label: "Tập đọc", icon: "📖" },
-      { id: "add-tap-doc", label: "Thêm bài tập đọc", icon: "➕" },
-      { id: "tap-viet", label: "Tập viết", icon: "✏️" },
-      { id: "nghe-hieu", label: "Nghe hiểu", icon: "🎧" },
-      { id: "noi", label: "Nói", icon: "🎤" },
-      { id: "tu-vung", label: "Từ vựng", icon: "📝" },
-      { id: "ngu-phap", label: "Ngữ pháp", icon: "📋" },
+    zoneId: 'hoc-sinh-tieu-hoc',
+    zoneLabel: 'Học sinh tiểu học',
+    zoneIcon: '🏫',
+    items: [
+      { id: 'dashboard', label: 'Tổng quan', icon: '📊' },
+      { id: 'users', label: 'Người dùng', icon: '👥' },
+
+      // A. Tập đọc
+      {
+        id: 'tap-doc',
+        label: 'A. Tập đọc',
+        icon: '📖',
+        children: [
+          {
+            id: 'tap-doc-phan1',
+            label: 'Phần 1 – Âm / Vần / Câu',
+            icon: '🔤',
+            children: [
+              { id: 'tap-doc-am', label: 'Âm', icon: '🔊' },
+              { id: 'tap-doc-van', label: 'Vần', icon: '📝' },
+              { id: 'tap-doc-cau', label: 'Câu', icon: '💬' },
+            ],
+          },
+          {
+            id: 'tap-doc-phan2',
+            label: 'Phần 2 – Đoạn văn',
+            icon: '📄',
+            children: [
+              { id: 'bai-doc-list',   label: 'Danh sách bài đọc', icon: '📋' },
+              { id: 'add-tap-doc',    label: 'Thêm bài tập đọc',  icon: '➕' },
+              { id: 'doan-van',       label: 'Đoạn văn',          icon: '🗒️' },
+              { id: 'am-thanh-bai-doc', label: 'Âm thanh bài đọc', icon: '🔈' },
+              { id: 'tu-kho',         label: 'Từ khó',            icon: '📌' },
+              { id: 'cau-hoi-bai-doc', label: 'Câu hỏi bài đọc', icon: '❓' },
+            ],
+          },
+        ],
+      },
+
+      // B. Luyện viết
+      {
+        id: 'luyen-viet',
+        label: 'B. Luyện viết',
+        icon: '✏️',
+        children: [
+          { id: 'luyen-viet-chu', label: 'Luyện viết chữ', icon: '🖊️' },
+          { id: 'luyen-viet-bai', label: 'Bài luyện viết', icon: '📓' },
+        ],
+      },
+
+      // C. Chính tả
+      {
+        id: 'chinh-ta',
+        label: 'C. Chính tả',
+        icon: '📜',
+        children: [
+          { id: 'chinh-ta-nghe', label: 'Nghe – Viết',  icon: '🎧' },
+          { id: 'chinh-ta-nho', label: 'Nhớ – Viết',   icon: '🧠' },
+        ],
+      },
+
+      // D. Ôn tập
+      {
+        id: 'on-tap',
+        label: 'D. Ôn tập',
+        icon: '🔄',
+        children: [
+          { id: 'on-tap-ky-nang', label: 'Ôn tập kỹ năng', icon: '📚' },
+          { id: 'ket-qua',        label: 'Kết quả kiểm tra', icon: '🏆' },
+        ],
+      },
     ],
   },
+
+  // ── PHÂN VÙNG 2: NGƯỜI NƯỚC NGOÀI ────────────────────────
   {
-    id: "tu-vung",
-    label: "Từ vựng",
-    icon: "🔤",
-  },
-  {
-    id: "ngu-phap",
-    label: "Ngữ pháp",
-    icon: "📋",
-  },
-  {
-    id: "bai-kiem-tra",
-    label: "Bài kiểm tra",
-    icon: "📝",
-  },
-  {
-    id: "ket-qua",
-    label: "Kết quả",
-    icon: "🏆",
+    zoneId: 'nguoi-nuoc-ngoai',
+    zoneLabel: 'Người nước ngoài',
+    zoneIcon: '🌏',
+    items: [
+      { id: 'nnn-tong-quan', label: 'Tổng quan', icon: '📊' },
+      { id: 'nnn-tu-vung',   label: 'Từ vựng',   icon: '🔤' },
+      { id: 'nnn-ngu-phap',  label: 'Ngữ pháp',  icon: '📋' },
+    ],
   },
 ];
+
+// Legacy flat menu (dùng để không phá vỡ code cũ tạm thời)
+export const sidebarMenu: SidebarItem[] = sidebarZones.flatMap(z => z.items);
+
 
 // ===== STATS =====
 export const dashboardStats = [

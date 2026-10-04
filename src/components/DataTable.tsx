@@ -15,7 +15,7 @@ interface DataTableProps<T> {
   rowKey?: keyof T  // field dùng làm key cho mỗi row (mặc định 'id')
 }
 
-export default function DataTable<T extends Record<string, unknown>>({
+export default function DataTable<T extends object>({
   title,
   icon,
   columns,
