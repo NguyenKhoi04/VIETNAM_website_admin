@@ -2,7 +2,7 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-brand">
-        <span className="footer-name">🇻🇳 Vietnam Language Learning</span>
+        <span className="footer-name"> &#x1F1FB;&#x1F1F3; Vietnam Language Learning</span>
         <span className="footer-address">Số 06, Trần Văn Ơn, Phường Phú Lợi, Thành phố Hồ Chí Minh</span>
       </div>
 

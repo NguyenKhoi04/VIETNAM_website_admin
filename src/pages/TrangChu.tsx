@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import Sidebar from "../components/Sidebar";
 import DataTable from "../components/DataTable";
 import AddTapDoc from "./AddTapDoc";
+import BaiDocList from "./BaiDocList";
 import { API_ENDPOINTS } from "../config/apiConfig";
 import type { User } from "../data/mockData";
 import {
@@ -160,6 +161,9 @@ export default function TrangChu() {
 
       case "add-tap-doc":
         return <AddTapDoc />;
+
+      case "bai-doc-list":
+        return <BaiDocList />;
 
       case "ky-nang":
       case "tap-doc":

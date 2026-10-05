@@ -380,6 +380,10 @@ export const sidebarZones: SidebarZone[] = [
         label: 'A. Tập đọc',
         icon: '📖',
         children: [
+          // ── Danh sách & Thêm bài đọc (giữa A.Tập đọc và Phần 1) ──
+          { id: 'bai-doc-list', label: 'Danh sách bài đọc', icon: '📋' },
+          { id: 'add-tap-doc',  label: 'Thêm bài tập đọc',  icon: '➕' },
+
           {
             id: 'tap-doc-phan1',
             label: 'Phần 1 – Âm / Vần / Câu',
@@ -395,12 +399,10 @@ export const sidebarZones: SidebarZone[] = [
             label: 'Phần 2 – Đoạn văn',
             icon: '📄',
             children: [
-              { id: 'bai-doc-list',   label: 'Danh sách bài đọc', icon: '📋' },
-              { id: 'add-tap-doc',    label: 'Thêm bài tập đọc',  icon: '➕' },
-              { id: 'doan-van',       label: 'Đoạn văn',          icon: '🗒️' },
-              { id: 'am-thanh-bai-doc', label: 'Âm thanh bài đọc', icon: '🔈' },
-              { id: 'tu-kho',         label: 'Từ khó',            icon: '📌' },
-              { id: 'cau-hoi-bai-doc', label: 'Câu hỏi bài đọc', icon: '❓' },
+              { id: 'doan-van',          label: 'Đoạn văn',          icon: '🗒️' },
+              { id: 'am-thanh-bai-doc',  label: 'Âm thanh bài đọc', icon: '🔈' },
+              { id: 'tu-kho',            label: 'Từ khó',            icon: '📌' },
+              { id: 'cau-hoi-bai-doc',   label: 'Câu hỏi bài đọc',  icon: '❓' },
             ],
           },
         ],
