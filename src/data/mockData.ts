@@ -372,7 +372,7 @@ export const sidebarZones: SidebarZone[] = [
     zoneIcon: '🏫',
     items: [
       { id: 'dashboard', label: 'Tổng quan', icon: '📊' },
-      { id: 'users', label: 'Người dùng', icon: '👥' },
+      { id: 'nguoi_dung', label: 'Người dùng', icon: '👥' },
 
       // A. Tập đọc
       {

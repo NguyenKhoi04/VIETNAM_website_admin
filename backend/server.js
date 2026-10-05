@@ -59,21 +59,20 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// 6. API đăng ký
-app.post('/api/register', (req, res) => {
-  const { ten_dangnhap, mat_khau } = req.body;
-
-  const sql = 'INSERT INTO nguoi_dung (ten_dangnhap, mat_khau) VALUES (?, ?)';
-  db.query(sql, [ten_dangnhap, mat_khau], (err, results) => {
-    if (err) {
-      console.error('Lỗi SQL chi tiết:', err);
-      return res.status(500).json({ message: err.message || 'Lỗi truy vấn server' });
-    }
-    return res.status(200).json({ message: 'Đăng ký thành công!' });
-  });
+//Bảng người dùng
+app.get('/api/users', (req, res) => {
+ const sql = 'SELECT id_nguoi_dung, ten_dangnhap, ho_ten, mat_khau, email, ngay_tao,ngay_cap_nhat,trang_thai FROM nguoi_dung'
+ db.query(sql, (err, results) => {
+  if (err) {
+    return res.status(500).json({ error: err.message });
+  }
+  res.json(results);
+ });
 });
+ 
 
-// 7. API lấy vai trò người dùng
+
+// 5. API lấy vai trò người dùng
 app.get('/api/roles', (req, res) => {
   const sql = 'SELECT DISTINCT doi_tuong FROM nguoi_dung';
   db.query(sql, (err, results) => {
@@ -170,17 +169,7 @@ app.get('/api/skills', (req, res) => {
   });
 });
 
-// API lấy danh sách người dùng (dùng cho trang admin - bảng Users)
-app.get('/api/users', (req, res) => {
-  const sql = 'SELECT id_nguoi_dung, ten_dangnhap, ho_ten, mat_khau, email, lop, ngay_tao, trang_thai, doi_tuong FROM nguoi_dung ORDER BY id_nguoi_dung ASC';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Lỗi SQL:', err);
-      return res.status(500).json({ error: err.message });
-    }
-    res.json(results);
-  });
-});
+
 
 // API lấy danh sách người dùng (cũ - chỉ trả id + ten_dangnhap)
 app.get('/api/data', (req, res) => {

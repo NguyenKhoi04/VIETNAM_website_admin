@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Sidebar from "../components/Sidebar";
@@ -6,7 +7,6 @@ import DataTable from "../components/DataTable";
 import AddTapDoc from "./AddTapDoc";
 import BaiDocList from "./BaiDocList";
 import { API_ENDPOINTS } from "../config/apiConfig";
-import type { User } from "../data/mockData";
 import {
   baiHocList,
   tuVungList,
@@ -14,14 +14,17 @@ import {
   baiKiemTraList,
   ketQuaList,
   dashboardStats,
+  User,
 } from "../data/mockData";
+import NguoiDungList from "./nguoidung";
 
 export default function TrangChu() {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState("dashboard");
-  const [user, setUser] = useState<{ name: string; username: string } | null>(
-    null,
-  );
+
+  // Khởi tạo user là null để Header không bị crash
+  const [user, setUser] = useState<any>(null);
   const [apiUsers, setApiUsers] = useState<User[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
 
@@ -41,13 +44,13 @@ export default function TrangChu() {
     }
   }, []);
 
-  // Fetch danh sách người dùng từ API khi chọn tab 'users'
+  // Fetch danh sách người dùng từ API khi chọn tab 'nguoi_dung'
   useEffect(() => {
-    if (activeItem !== "users") return;
+    if (activeItem !== "nguoi_dung") return;
     setUsersLoading(true);
     fetch(API_ENDPOINTS.GET_USERS)
       .then((res) => res.json())
-      .then((data: User[]) => setApiUsers(data))
+      .then((data: User[]) => setApiUsers(Array.isArray(data) ? data : []))
       .catch(() => setApiUsers([]))
       .finally(() => setUsersLoading(false));
   }, [activeItem]);
@@ -55,6 +58,7 @@ export default function TrangChu() {
   const handleLogout = () => {
     localStorage.removeItem("admin_user");
     setUser(null);
+    navigate("/login", { replace: true });
   };
 
   // ===== Render main content =====
@@ -63,103 +67,100 @@ export default function TrangChu() {
       case "dashboard":
         return <Dashboard />;
 
-      case "users":
-        if (usersLoading)
-          return (
-            <div
-              style={{
-                padding: "48px",
-                textAlign: "center",
-                color: "var(--text-muted)",
-                fontSize: "15px",
-              }}
-            >
-              ⏳ Đang tải danh sách người dùng...
-            </div>
-          );
-        return (
-          <DataTable
-            title="Người dùng"
-            icon="👥"
-            data={apiUsers}
-            rowKey="id_nguoi_dung"
-            columns={[
-              { key: "id_nguoi_dung", label: "ID" },
-              { key: "ho_ten", label: "Họ tên" },
-              { key: "ten_dangnhap", label: "Tên đăng nhập" },
-              { key: "mat_khau", label: "Mật khẩu" },
-              { key: "email", label: "Email" },
-              { key: "lop", label: "Lớp" },
-              {
-                key: "ngay_tao",
-                label: "Ngày tạo",
-                // Hiển thị định dạng ngày/tháng/năm Việt Nam
-                render: (v) => {
-                  if (!v) return "—";
-                  const date = new Date(v as string | number);
-                  return date.toLocaleDateString("vi-VN");
-                },
-              },
-
-              {
-                key: "trang_thai",
-                label: "Trạng thái",
-                render: (v) => {
-                  const isActive = v == 1 || v === "1";
-                  return (
-                    <span
-                      className={`status-badge ${isActive ? "status-active" : "status-inactive"}`}
-                    >
-                      {isActive ? "● Hoạt động" : "○ Không hoạt động"}
-                    </span>
-                  );
-                },
-              },
-              {
-                key: "doi_tuong",
-                label: "Vai trò",
-                render: (v) => {
-                  const role = String(v);
-                  const roleMap: Record<string, string> = {
-                    hoc_sinh_tieu_hoc: "Học sinh tiểu học",
-                    nguoi_nuoc_ngoai: "Người nước ngoài",
-                    quan_tri: "Quản trị viên",
-                    phu_huynh: "Phụ huynh",
-                  };
-                  const colorMap: Record<string, React.CSSProperties> = {
-                    quan_tri: {
-                      background: "rgba(231,76,60,0.12)",
-                      color: "#c0392b",
-                      border: "1px solid rgba(231,76,60,0.3)",
-                    },
-                    hoc_sinh_tieu_hoc: {
-                      background: "rgba(39,174,96,0.12)",
-                      color: "#1e8449",
-                      border: "1px solid rgba(39,174,96,0.3)",
-                    },
-                    nguoi_nuoc_ngoai: {
-                      background: "rgba(94,184,212,0.12)",
-                      color: "#2471a3",
-                      border: "1px solid rgba(94,184,212,0.3)",
-                    },
-                    phu_huynh: {
-                      background: "rgba(243,156,18,0.12)",
-                      color: "#b7770d",
-                      border: "1px solid rgba(243,156,18,0.3)",
-                    },
-                  };
-                  return (
-                    <span className="status-badge" style={colorMap[role] ?? {}}>
-                      {roleMap[role] || role}
-                    </span>
-                  );
-                },
-              },
-            ]}
-          />
-        );
-
-      case "add-tap-doc":
+      case "nguoi_dung": 
+      return <NguoiDungList/>;
+        
+        // if (usersLoading)
+        //   return (
+        //     <div
+        //       style={{
+        //         padding: "48px",
+        //         textAlign: "center",
+        //         color: "var(--text-muted)",
+        //         fontSize: "15px",
+        //       }}
+        //     >
+        //       ⏳ Đang tải danh sách người dùng...
+        //     </div>
+        //   );
+        // return (
+         
+        //   <DataTable
+        //     title="Người dùng"
+        //     icon="👥"
+        //     data={apiUsers || []}
+        //     rowKey="id_nguoi_dung"
+        //     columns={[
+        //       { key: "id_nguoi_dung", label: "ID" },
+        //       { key: "ho_ten", label: "Họ tên" },
+        //       { key: "ten_dangnhap", label: "Tên đăng nhập" },
+        //       {
+        //         key: "mat_khau",
+        //         label: "Mật khẩu",
+        //         render: () => <span>••••••••</span>,
+        //       },
+        //       { key: "email", label: "Email" },
+        //       {
+        //         key: "trang_thai",
+        //         label: "Trạng thái",
+        //         render: (v) => {
+        //           const isActive = v == 1 || v === "1";
+        //           return (
+        //             <span
+        //               className={`status-badge ${isActive ? "status-active" : "status-inactive"}`}
+        //             >
+        //               {isActive ? "● Hoạt động" : "○ Không hoạt động"}
+        //             </span>
+        //           );
+        //         },
+        //       },
+        //     ]}
+        //   />
+        // );
+              // {
+              //   key: "doi_tuong",
+              //   label: "Vai trò",
+              //   render: (v) => {
+              //     const role = String(v);
+              //     const roleMap: Record<string, string> = {
+              //       hoc_sinh_tieu_hoc: "Học sinh tiểu học",
+              //       nguoi_nuoc_ngoai: "Người nước ngoài",
+              //       quan_tri: "Quản trị viên",
+              //       phu_huynh: "Phụ huynh",
+              //     };
+              //     const colorMap: Record<string, React.CSSProperties> = {
+              //       quan_tri: {
+              //         background: "rgba(231,76,60,0.12)",
+              //         color: "#c0392b",
+              //         border: "1px solid rgba(231,76,60,0.3)",
+              //       },
+              //       hoc_sinh_tieu_hoc: {
+              //         background: "rgba(39,174,96,0.12)",
+              //         color: "#1e8449",
+              //         border: "1px solid rgba(39,174,96,0.3)",
+              //       },
+              //       nguoi_nuoc_ngoai: {
+              //         background: "rgba(94,184,212,0.12)",
+              //         color: "#2471a3",
+              //         border: "1px solid rgba(94,184,212,0.3)",
+              //       },
+              //       phu_huynh: {
+              //         background: "rgba(243,156,18,0.12)",
+              //         color: "#b7770d",
+              //         border: "1px solid rgba(243,156,18,0.3)",
+              //       },
+              //     };
+              //     return (
+              //       <span className="status-badge" style={colorMap[role] ?? {}}>
+              //         {roleMap[role] || role}
+              //       </span>
+              //     );
+              //   },
+              // },
+        //     ]}
+        //   />
+        // );
+        case "add-tap-doc":
         return <AddTapDoc />;
 
       case "bai-doc-list":
@@ -172,16 +173,16 @@ export default function TrangChu() {
       case "noi": {
         const filtered =
           activeItem === "ky-nang"
-            ? baiHocList
-            : baiHocList.filter((b) => {
-              const map: Record<string, string> = {
-                "tap-doc": "Tập đọc",
-                "tap-viet": "Tập viết",
-                "nghe-hieu": "Nghe hiểu",
-                noi: "Nói",
-              };
-              return b.loai_ky_nang === map[activeItem];
-            });
+            ? baiHocList || []
+            : (baiHocList || []).filter((b) => {
+                const map: Record<string, string> = {
+                  "tap-doc": "Tập đọc",
+                  "tap-viet": "Tập viết",
+                  "nghe-hieu": "Nghe hiểu",
+                  noi: "Nói",
+                };
+                return b.loai_ky_nang === map[activeItem];
+              });
 
         const labels: Record<string, string> = {
           "ky-nang": "Bài học",
@@ -230,7 +231,7 @@ export default function TrangChu() {
           <DataTable
             title="Từ vựng"
             icon="🔤"
-            data={tuVungList}
+            data={tuVungList || []}
             columns={[
               { key: "tu", label: "Từ" },
               { key: "phien_am", label: "Phiên âm" },
@@ -258,7 +259,7 @@ export default function TrangChu() {
           <DataTable
             title="Ngữ pháp"
             icon="📋"
-            data={nguPhapList}
+            data={nguPhapList || []}
             columns={[
               { key: "tieu_de", label: "Tiêu đề" },
               { key: "cap_do", label: "Cấp độ" },
@@ -284,7 +285,7 @@ export default function TrangChu() {
           <DataTable
             title="Bài kiểm tra"
             icon="📝"
-            data={baiKiemTraList}
+            data={baiKiemTraList || []}
             columns={[
               { key: "tieu_de", label: "Tiêu đề" },
               { key: "loai", label: "Loại" },
@@ -312,7 +313,7 @@ export default function TrangChu() {
           <DataTable
             title="Kết quả kiểm tra"
             icon="🏆"
-            data={ketQuaList}
+            data={ketQuaList || []}
             columns={[
               { key: "nguoi_dung", label: "Học viên" },
               { key: "bai_kiem_tra", label: "Bài kiểm tra" },
@@ -323,8 +324,7 @@ export default function TrangChu() {
                   <span
                     style={{
                       fontWeight: 700,
-                      color:
-                        Number(v) >= 60 ? "var(--primary-dark)" : "#e74c3c",
+                      color: Number(v) >= 60 ? "var(--primary-dark)" : "#e74c3c",
                     }}
                   >
                     {String(v)} / 100
@@ -413,7 +413,7 @@ function Dashboard() {
       </div>
 
       <div className="stats-grid">
-        {dashboardStats.map((stat, i) => (
+        {(dashboardStats || []).map((stat, i) => (
           <div key={i} className="stat-card">
             <div className="stat-icon">{stat.icon}</div>
             <div className="stat-value">{stat.value}</div>
@@ -495,9 +495,9 @@ function Dashboard() {
           >
             🏆 Kết quả kiểm tra gần đây
           </h2>
-          {ketQuaList.slice(0, 5).map((kq) => (
+          {(ketQuaList || []).slice(0, 5).map((kq, idx) => (
             <div
-              key={kq.id}
+              key={idx}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -525,7 +525,7 @@ function Dashboard() {
                   style={{
                     fontSize: "14px",
                     fontWeight: 800,
-                    color: kq.diem >= 60 ? "var(--primary-dark)" : "#e74c3c",
+                    color: Number(kq.diem) >= 60 ? "var(--primary-dark)" : "#e74c3c",
                   }}
                 >
                   {kq.diem}đ
