@@ -21,15 +21,30 @@ interface BaiDoc {
 
 // ── SVG Icons tự vẽ (không dùng icon thư viện) ─────────────────────────
 
-/** Chi tiết – màu xanh dương #3b82f6 */
+/**
+ * Chi tiết – Chữ i màu xanh dương tròn #3b82f6
+ */
 function IconDetail() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.2"
-      strokeLinecap="round" strokeLinejoin="round" aria-label="Chi tiết">
-      <path d="M12 5v9" />
-      <path d="M12 19l-3-3" />
-      <path d="M12 19l3-3" />
+    <svg 
+      width="16" 
+      height="16" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="#3b82f6" 
+      strokeWidth="2.2"
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      aria-label="Chi tiết"
+    >
+      {/* Vòng tròn ngoài */}
       <circle cx="12" cy="12" r="10" />
+      
+      {/* Thân chữ i (đường thẳng dọc) */}
+      <path d="M12 11v5" />
+      
+      {/* Chấm tròn chữ i */}
+      <path d="M12 7h.01" />
     </svg>
   )
 }

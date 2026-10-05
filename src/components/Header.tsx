@@ -74,9 +74,11 @@ export default function Header({ sidebarOpen, onToggleSidebar, user, onLogout }:
                 >
                   👤 Tài khoản
                 </button>
+
+                {/* Đăng xuất trở về đăng nhập */}
                 <button
                   id="logout-btn"
-                  onClick={() => { onLogout(); setDropdownOpen(false); navigate('/') }}
+                  onClick={() => { onLogout(); setDropdownOpen(false); navigate('/dang-nhap') }}
                   style={{ width: '100%', padding: '10px 16px', textAlign: 'left', fontSize: '13px', color: '#e74c3c', background: 'none', cursor: 'pointer', border: 'none', transition: 'var(--transition)' }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'rgba(231,76,60,0.06)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'none')}
