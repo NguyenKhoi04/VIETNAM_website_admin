@@ -6,6 +6,7 @@ import Sidebar from "../components/Sidebar";
 import DataTable from "../components/DataTable";
 import AddTapDoc from "./AddTapDoc";
 import BaiDocList from "./BaiDocList";
+import VaiTro from "./user/vaitro";
 import { API_ENDPOINTS } from "../config/apiConfig";
 import {
   baiHocList,
@@ -16,7 +17,7 @@ import {
   dashboardStats,
   User,
 } from "../data/mockData";
-import NguoiDungList from "./nguoidung";
+import NguoiDungList from "./user/nguoidung";
 
 export default function TrangChu() {
   const navigate = useNavigate();
@@ -162,6 +163,9 @@ export default function TrangChu() {
         // );
         case "add-tap-doc":
         return <AddTapDoc />;
+
+        case "vaitro":
+          return <VaiTro />;
 
       case "bai-doc-list":
         return <BaiDocList />;

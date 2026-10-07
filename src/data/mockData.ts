@@ -12,7 +12,7 @@ export interface User {
   lop?: string;
   ngay_tao?: string | Date; // MySQL có thể trả về string hoặc Date object
   trang_thai?: number; // 1 = Hoạt động, 0 = Không hoạt động
-  doi_tuong: string;
+
 }
 
 export interface BaiHoc {
@@ -365,14 +365,25 @@ export interface SidebarZone {
 }
 
 export const sidebarZones: SidebarZone[] = [
+  // ── CHUNG CHO TẤT CẢ PHÂN VÙNG ──────────────────────
+  {
+    zoneId: 'chung',
+    zoneLabel: 'Quản lý tài khoản và báo cáo',
+    zoneIcon: '🎯',
+    items: [
+      { id: 'dashboard', label: 'Tổng quan', icon: '📊' },
+      { id: 'nguoi_dung', label: 'Người dùng', icon: '👥' },
+      { id: 'vaitro', label: 'Vai Trò', icon: '👥' },
+    ],
+  },
+
   // ── PHÂN VÙNG 1: HỌC SINH TIỂU HỌC ──────────────────────
   {
     zoneId: 'hoc-sinh-tieu-hoc',
     zoneLabel: 'Học sinh tiểu học',
     zoneIcon: '🏫',
     items: [
-      { id: 'dashboard', label: 'Tổng quan', icon: '📊' },
-      { id: 'nguoi_dung', label: 'Người dùng', icon: '👥' },
+     
 
       // A. Tập đọc
       {

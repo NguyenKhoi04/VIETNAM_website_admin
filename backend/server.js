@@ -31,7 +31,6 @@ app.get('/api/status', (req, res) => {
 
 // 4. API đăng nhập
 app.post('/api/login', (req, res) => {
-  // Nhận linh hoạt cả 2 kiểu đặt tên key từ frontend
   const ten_dangnhap = req.body.ten_dangnhap || req.body.username;
   const mat_khau = req.body.mat_khau || req.body.password;
 
@@ -47,10 +46,9 @@ app.post('/api/login', (req, res) => {
       return res.status(200).json({
         message: 'Đăng nhập thành công!',
         user: {
-          id: results[0].id,
+          id: results[0].id_nguoi_dung || results[0].id,
           ten_dangnhap: results[0].ten_dangnhap,
           ho_ten: results[0].ho_ten,
-          doi_tuong: results[0].doi_tuong,
         },
       });
     } else {
@@ -59,22 +57,29 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-//Bảng người dùng
+// ============================================================
+// API QUẢN LÝ NGƯỜI DÙNG (CRUD /api/users)
+// ============================================================
+
+// Lấy danh sách người dùng kèm mã vai trò
 app.get('/api/users', (req, res) => {
- const sql = 'SELECT id_nguoi_dung, ten_dangnhap, ho_ten, mat_khau, email, ngay_tao,ngay_cap_nhat,trang_thai FROM nguoi_dung'
- db.query(sql, (err, results) => {
-  if (err) {
-    return res.status(500).json({ error: err.message });
-  }
-  res.json(results);
- });
-});
- 
+  const sql = `
+    SELECT 
+      nd.id_nguoi_dung, 
+      nd.ten_dangnhap, 
+      nd.mat_khau,
+      nd.ho_ten, 
+      nd.email, 
+      nd.ngay_tao, 
+      nd.ngay_cap_nhat, 
+      nd.trang_thai,
+      vt.ma AS ma_vaitro
+    FROM nguoi_dung nd
+    LEFT JOIN nguoi_dung_vai_tro ndvt ON nd.id_nguoi_dung = ndvt.nguoi_dung_id
+    LEFT JOIN vai_tro vt ON vt.id = ndvt.vai_tro_id
+    ORDER BY nd.id_nguoi_dung DESC
+  `;
 
-
-// 5. API lấy vai trò người dùng
-app.get('/api/roles', (req, res) => {
-  const sql = 'SELECT DISTINCT doi_tuong FROM nguoi_dung';
   db.query(sql, (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
@@ -83,12 +88,170 @@ app.get('/api/roles', (req, res) => {
   });
 });
 
-// 8. API lấy thông tin người dùng (tìm theo ten_dangnhap HOẶC ho_ten)
+// Thêm người dùng mới
+app.post('/api/users', (req, res) => {
+  const {
+    id_nguoi_dung,
+    ten_dangnhap,
+    email,
+    mat_khau,
+    ho_ten,
+    ma_vaitro,
+    trang_thai = 1,
+    ngay_tao,
+    ngay_cap_nhat,
+  } = req.body;
+
+  const now = new Date();
+  const createdDate = ngay_tao || now;
+  const updatedDate = ngay_cap_nhat || now;
+
+  const sqlInsertUser = id_nguoi_dung
+    ? `INSERT INTO nguoi_dung (id_nguoi_dung, ten_dangnhap, email, mat_khau, ho_ten, trang_thai, ngay_tao, ngay_cap_nhat) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    : `INSERT INTO nguoi_dung (ten_dangnhap, email, mat_khau, ho_ten, trang_thai, ngay_tao, ngay_cap_nhat) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+  const userParams = id_nguoi_dung
+    ? [id_nguoi_dung, ten_dangnhap, email, mat_khau, ho_ten, trang_thai, createdDate, updatedDate]
+    : [ten_dangnhap, email, mat_khau, ho_ten, trang_thai, createdDate, updatedDate];
+
+  db.query(sqlInsertUser, userParams, (err, userResult) => {
+    if (err) {
+      console.error('Lỗi thêm người dùng:', err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    const newUserId = id_nguoi_dung || userResult.insertId;
+
+    if (ma_vaitro) {
+      db.query('SELECT id FROM vai_tro WHERE ma = ? LIMIT 1', [ma_vaitro], (errRole, roleRows) => {
+        if (!errRole && roleRows.length > 0) {
+          const roleId = roleRows[0].id;
+          db.query(
+            'INSERT INTO nguoi_dung_vai_tro (nguoi_dung_id, vai_tro_id) VALUES (?, ?)',
+            [newUserId, roleId],
+            (errLink) => {
+              if (errLink) console.error('Lỗi gán vai trò:', errLink);
+              return res.status(201).json({ message: 'Thêm người dùng thành công!', id_nguoi_dung: newUserId });
+            }
+          );
+        } else {
+          return res.status(201).json({ message: 'Thêm người dùng thành công!', id_nguoi_dung: newUserId });
+        }
+      });
+    } else {
+      return res.status(201).json({ message: 'Thêm người dùng thành công!', id_nguoi_dung: newUserId });
+    }
+  });
+});
+
+// Cập nhật người dùng theo ID (Khắc phục lỗi 404 PUT)
+app.put('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+  const {
+    ten_dangnhap,
+    email,
+    mat_khau,
+    ho_ten,
+    ma_vaitro,
+    trang_thai,
+    ngay_cap_nhat,
+  } = req.body;
+
+  const updatedDate = ngay_cap_nhat || new Date();
+
+  let sqlUpdateUser = `
+    UPDATE nguoi_dung 
+    SET ten_dangnhap = ?, email = ?, ho_ten = ?, trang_thai = ?, ngay_cap_nhat = ?
+  `;
+  const updateParams = [ten_dangnhap, email, ho_ten, trang_thai, updatedDate];
+
+  if (mat_khau) {
+    sqlUpdateUser = `
+      UPDATE nguoi_dung 
+      SET ten_dangnhap = ?, email = ?, mat_khau = ?, ho_ten = ?, trang_thai = ?, ngay_cap_nhat = ?
+    `;
+    updateParams.splice(2, 0, mat_khau);
+  }
+
+  sqlUpdateUser += ` WHERE id_nguoi_dung = ?`;
+  updateParams.push(id);
+
+  db.query(sqlUpdateUser, updateParams, (err, userResult) => {
+    if (err) {
+      console.error('Lỗi cập nhật người dùng:', err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (userResult.affectedRows === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy người dùng cần cập nhật' });
+    }
+
+    if (ma_vaitro) {
+      db.query('SELECT id FROM vai_tro WHERE ma = ? LIMIT 1', [ma_vaitro], (errRole, roleRows) => {
+        if (!errRole && roleRows.length > 0) {
+          const roleId = roleRows[0].id;
+          db.query('DELETE FROM nguoi_dung_vai_tro WHERE nguoi_dung_id = ?', [id], () => {
+            db.query(
+              'INSERT INTO nguoi_dung_vai_tro (nguoi_dung_id, vai_tro_id) VALUES (?, ?)',
+              [id, roleId],
+              (errLink) => {
+                if (errLink) console.error('Lỗi cập nhật vai trò:', errLink);
+                return res.json({ message: 'Cập nhật người dùng thành công!' });
+              }
+            );
+          });
+        } else {
+          return res.json({ message: 'Cập nhật người dùng thành công!' });
+        }
+      });
+    } else {
+      return res.json({ message: 'Cập nhật người dùng thành công!' });
+    }
+  });
+});
+
+// Xóa người dùng theo ID
+app.delete('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+
+  db.query('DELETE FROM nguoi_dung_vai_tro WHERE nguoi_dung_id = ?', [id], (errLink) => {
+    if (errLink) {
+      console.error('Lỗi xóa liên kết vai trò:', errLink);
+      return res.status(500).json({ error: errLink.message });
+    }
+
+    db.query('DELETE FROM nguoi_dung WHERE id_nguoi_dung = ?', [id], (err, result) => {
+      if (err) {
+        console.error('Lỗi xóa người dùng:', err);
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Không tìm thấy người dùng cần xóa' });
+      }
+
+      res.json({ message: 'Xóa người dùng thành công!' });
+    });
+  });
+});
+
+// 5. API lấy danh sách vai trò
+app.get('/api/roles', (req, res) => {
+  const sql = 'SELECT id, ma, ten_vn, ten_en, icon FROM vai_tro';
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(results);
+  });
+});
+
+// 8. API lấy thông tin người dùng theo tên
 app.get('/api/user-info/:identifier', (req, res) => {
   const { identifier } = req.params;
 
   const sql = `
-    SELECT id_nguoi_dung, ho_ten, ten_dangnhap, doi_tuong 
+    SELECT id_nguoi_dung, ho_ten, ten_dangnhap
     FROM nguoi_dung 
     WHERE ten_dangnhap = ? OR ho_ten = ? 
     LIMIT 1
@@ -108,10 +271,9 @@ app.get('/api/user-info/:identifier', (req, res) => {
   });
 });
 
-// 9. API lấy tên lớp trong bảng chuong_trinh
+// 9. API lấy danh sách lớp
 app.get('/api/classes', (req, res) => {
   const sql = 'SELECT DISTINCT lop FROM chuong_trinh WHERE lop IN (1, 2, 3) ORDER BY lop ASC';
-
   db.query(sql, (err, results) => {
     if (err) {
       console.error('Lỗi SQL:', err);
@@ -121,10 +283,9 @@ app.get('/api/classes', (req, res) => {
   });
 });
 
-// 10. API lấy tên chương trình dựa trên lớp
+// 10. API lấy tên chương trình theo lớp
 app.get('/api/program-name', (req, res) => {
   const lop = req.query.lop;
-
   const sql = 'SELECT ten_chuong_trinh FROM chuong_trinh WHERE lop = ?';
 
   db.query(sql, [lop], (err, results) => {
@@ -136,7 +297,7 @@ app.get('/api/program-name', (req, res) => {
   });
 });
 
-// 11. API lấy danh sách kỹ năng theo lớp
+// 11. API lấy danh sách kỹ năng
 app.get('/api/skills', (req, res) => {
   const { lop } = req.query;
 
@@ -169,9 +330,7 @@ app.get('/api/skills', (req, res) => {
   });
 });
 
-
-
-// API lấy danh sách người dùng (cũ - chỉ trả id + ten_dangnhap)
+// API phụ lấy id và username
 app.get('/api/data', (req, res) => {
   const sql = 'SELECT id_nguoi_dung, ten_dangnhap FROM nguoi_dung';
   db.query(sql, (err, results) => {
@@ -186,9 +345,7 @@ app.get('/api/data', (req, res) => {
 // API NHÓM BÀI ĐỌC (bai_doc + 4 bảng phụ)
 // ============================================================
 
-// ── 1. bai_doc ──────────────────────────────────────────────
-
-// Lấy tất cả bài đọc (có thể lọc theo lop_id)
+// ── 1. bai_doc ──
 app.get('/api/bai-doc', (req, res) => {
   const { lop_id } = req.query;
   let sql = 'SELECT * FROM bai_doc';
@@ -201,7 +358,6 @@ app.get('/api/bai-doc', (req, res) => {
   });
 });
 
-// Lấy 1 bài đọc theo id
 app.get('/api/bai-doc/:id', (req, res) => {
   db.query('SELECT * FROM bai_doc WHERE id = ?', [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -210,7 +366,6 @@ app.get('/api/bai-doc/:id', (req, res) => {
   });
 });
 
-// Thêm bài đọc mới
 app.post('/api/bai-doc', (req, res) => {
   const { lop_id, chu_de_id, tuan_so, bai_so, ten_bai, hinh_anh_bai, tac_gia, noi_dung_day_du, thu_tu } = req.body;
   const sql = `INSERT INTO bai_doc (lop_id, chu_de_id, tuan_so, bai_so, ten_bai, hinh_anh_bai, tac_gia, noi_dung_day_du, thu_tu)
@@ -221,7 +376,6 @@ app.post('/api/bai-doc', (req, res) => {
   });
 });
 
-// Cập nhật bài đọc
 app.put('/api/bai-doc/:id', (req, res) => {
   const { lop_id, chu_de_id, tuan_so, bai_so, ten_bai, hinh_anh_bai, tac_gia, noi_dung_day_du, thu_tu } = req.body;
   const sql = `UPDATE bai_doc SET lop_id=?, chu_de_id=?, tuan_so=?, bai_so=?, ten_bai=?, hinh_anh_bai=?, tac_gia=?, noi_dung_day_du=?, thu_tu=? WHERE id=?`;
@@ -231,7 +385,6 @@ app.put('/api/bai-doc/:id', (req, res) => {
   });
 });
 
-// Xóa bài đọc
 app.delete('/api/bai-doc/:id', (req, res) => {
   db.query('DELETE FROM bai_doc WHERE id = ?', [req.params.id], (err) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -239,9 +392,7 @@ app.delete('/api/bai-doc/:id', (req, res) => {
   });
 });
 
-// ── 2. doan_van ──────────────────────────────────────────────
-
-// Lấy tất cả đoạn văn theo bai_doc_id
+// ── 2. doan_van ──
 app.get('/api/doan-van', (req, res) => {
   const { bai_doc_id } = req.query;
   let sql = 'SELECT * FROM doan_van';
@@ -287,9 +438,7 @@ app.delete('/api/doan-van/:id', (req, res) => {
   });
 });
 
-// ── 3. am_thanh_bai_doc ──────────────────────────────────────
-
-// Lấy âm thanh theo bai_doc_id (có thể lọc thêm theo loai)
+// ── 3. am_thanh_bai_doc ──
 app.get('/api/am-thanh-bai-doc', (req, res) => {
   const { bai_doc_id, loai } = req.query;
   let sql = 'SELECT * FROM am_thanh_bai_doc WHERE 1=1';
@@ -335,8 +484,7 @@ app.delete('/api/am-thanh-bai-doc/:id', (req, res) => {
   });
 });
 
-// ── 4. tu_kho ────────────────────────────────────────────────
-
+// ── 4. tu_kho ──
 app.get('/api/tu-kho', (req, res) => {
   const { bai_doc_id } = req.query;
   let sql = 'SELECT * FROM tu_kho';
@@ -382,8 +530,7 @@ app.delete('/api/tu-kho/:id', (req, res) => {
   });
 });
 
-// ── 5. cau_hoi_bai_doc ───────────────────────────────────────
-
+// ── 5. cau_hoi_bai_doc ──
 app.get('/api/cau-hoi-bai-doc', (req, res) => {
   const { bai_doc_id } = req.query;
   let sql = 'SELECT * FROM cau_hoi_bai_doc';

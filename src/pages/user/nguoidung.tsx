@@ -1,24 +1,29 @@
 // ========================
 // NguoiDungList.tsx – Danh sách người dùng (kết nối API /api/users)
-// Nút Thêm ở đầu bảng, icon Sửa (bút chì) & Xóa (thùng rác) tự vẽ SVG
 // ========================
 import { useState, useEffect } from 'react'
 import './NguoiDungList.css'
 
 // ── Types ──────────────────────────────────────────────────────────────
+interface VaiTro {
+  id: number
+  ma: string
+  ten_vai_tro?: string
+}
+
 interface NguoiDung {
   id_nguoi_dung: number
   ten_dangnhap: string
   email: string
   mat_khau: string
   ho_ten: string
-  vai_tro: string
+  ma_vaitro: string
   trang_thai: number
   ngay_tao: string
   ngay_cap_nhat: string
 }
 
-// ── SVG Icons tự vẽ (không dùng icon thư viện) ─────────────────────────
+// ── SVG Icons ──────────────────────────────────────────────────────────
 function IconDetail() {
   return (
     <svg
@@ -81,7 +86,7 @@ function IconDelete() {
 }
 
 // ── Modal Chi tiết ─────────────────────────────────────────────────────
-function NguoiDungDetailModal({ data, onClose }: { data: NguoiDung; onClose: () => void }) {
+function NguoiDungDetailModal({ data, roles, onClose }: { data: NguoiDung; roles: VaiTro[]; onClose: () => void }) {
   return (
     <div className="users-modal-overlay" onClick={onClose}>
       <div className="users-modal" onClick={e => e.stopPropagation()}>
@@ -112,8 +117,8 @@ function NguoiDungDetailModal({ data, onClose }: { data: NguoiDung; onClose: () 
               <input type="text" value={data.ho_ten ?? ''} disabled />
             </div>
             <div className="bd-form-group bd-full">
-              <label>Vai trò</label>
-              <input type="text" value={data.vai_tro ?? ''} disabled />
+              <label>Mã Vai trò</label>
+              <input type="text" value={data.ma_vaitro ?? ''} disabled />
             </div>
             <div className="bd-form-group">
               <label>Trạng thái</label>
@@ -145,11 +150,12 @@ function NguoiDungDetailModal({ data, onClose }: { data: NguoiDung; onClose: () 
 interface ModalProps {
   mode: 'add' | 'edit'
   data: Partial<NguoiDung>
+  roles: VaiTro[]
   onClose: () => void
   onSave: (data: Partial<NguoiDung>) => void
 }
 
-function NguoiDungModal({ mode, data, onClose, onSave }: ModalProps) {
+function NguoiDungModal({ mode, data, roles, onClose, onSave }: ModalProps) {
   const [form, setForm] = useState<Partial<NguoiDung>>(data)
   const set = (key: keyof NguoiDung, val: string | number) =>
     setForm(prev => ({ ...prev, [key]: val }))
@@ -210,24 +216,68 @@ function NguoiDungModal({ mode, data, onClose, onSave }: ModalProps) {
                 placeholder="Nhập họ tên..."
               />
             </div>
+
+            {/* Menu Dropdown Chọn Vai trò */}
             <div className="bd-form-group bd-full">
-              <label>Vai trò <span className="bd-required">*</span></label>
-              <input
-                type="text"
-                value={form.vai_tro ?? ''}
-                onChange={e => set('vai_tro', e.target.value)}
-                placeholder="Vai trò..."
-              />
+              <label>Mã Vai trò <span className="bd-required">*</span></label>
+              <div className="bd-select-wrapper">
+                <select
+                  className="bd-select-rounded"
+                  value={form.ma_vaitro ?? ''}
+                  onChange={(e) => set('ma_vaitro', e.target.value)}
+                >
+                  <option value="">-- Chọn vai trò người dùng --</option>
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.ma}>
+                      {role.ten_vai_tro ? `${role.ten_vai_tro} (${role.ma})` : role.ma}
+                    </option>
+                  ))}
+                </select>
+                {/* Mũi tên custom */}
+                <span className="bd-select-arrow">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+              </div>
             </div>
+
             <div className="bd-form-group">
               <label>Trạng thái <span className="bd-required">*</span></label>
-              <select
-                value={form.trang_thai ?? 1}
-                onChange={e => set('trang_thai', Number(e.target.value))}
-              >
-                <option value={1}>Hoạt động</option>
-                <option value={0}>Không hoạt động</option>
-              </select>
+              <div className="bd-select-wrapper">
+                <select
+                  className="bd-select-rounded"
+                  value={form.trang_thai ?? 1}
+                  onChange={e => set('trang_thai', Number(e.target.value))}
+                >
+                  <option value={1}>Hoạt động</option>
+                  <option value={0}>Không hoạt động</option>
+                </select>
+                {/* Mũi tên custom */}
+                <span className="bd-select-arrow">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+              </div>
             </div>
             <div className="bd-form-group">
               <label>Ngày tạo</label>
@@ -300,6 +350,13 @@ export default function NguoiDungList() {
   const [searchTerm, setSearchTerm] = useState('')
   const [deleteItem, setDeleteItem] = useState<NguoiDung | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
+  
+  // Danh sách vai trò (kèm giá trị mặc định phòng trường hợp API /api/roles chưa có)
+  const [roles, setRoles] = useState<VaiTro[]>([
+    { id: 1, ma: 'ADMIN', ten_vai_tro: 'Quản trị viên' },
+    { id: 2, ma: 'USER', ten_vai_tro: 'Người dùng' },
+    { id: 3, ma: 'MANAGER', ten_vai_tro: 'Quản lý' },
+  ])
 
   // Ẩn/hiện mật khẩu
   const [visiblePasswords, setVisiblePasswords] = useState<Record<number, boolean>>({})
@@ -313,19 +370,44 @@ export default function NguoiDungList() {
     setTimeout(() => setToast(null), 3000)
   }
 
-  // ── Fetch ──
+  // ── Fetch dữ liệu ──
+  const fetchRoles = () => {
+    fetch(`${API_BASE}/api/roles`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setRoles(data)
+        }
+      })
+      .catch(() => {
+        // Nếu chưa cấu hình route /api/roles, vẫn giữ nguyên fallback roles mặc định
+      })
+  }
+
   const fetchList = () => {
     setLoading(true)
     setError('')
     fetch(`${API_BASE}/api/users`)
       .then(r => r.json())
-      .then((data: NguoiDung[]) => setList(Array.isArray(data) ? data : []))
+      .then((data: any[]) => {
+        if (Array.isArray(data)) {
+          // Chuẩn hóa ma_vai_tro từ API về ma_vaitro
+          const normalized = data.map(item => ({
+            ...item,
+            ma_vaitro: item.ma_vaitro || item.ma_vai_tro || '',
+          }))
+          setList(normalized)
+        } else {
+          setList([])
+        }
+      })
       .catch(err => setError('Không thể kết nối API: ' + err.message))
       .finally(() => setLoading(false))
   }
 
   useEffect(() => {
     fetchList()
+    fetchRoles()
   }, [])
 
   // ── Filter ──
@@ -333,12 +415,11 @@ export default function NguoiDungList() {
     item.ho_ten?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // ── Phân trang (dựa trên filteredList) ──
+  // ── Phân trang ──
   const totalPages = Math.ceil(filteredList.length / pageSize) || 1
   const start = (page - 1) * pageSize
   const currentData = filteredList.slice(start, start + pageSize)
 
-  // Reset về trang 1 khi search thay đổi
   useEffect(() => {
     setPage(1)
   }, [searchTerm])
@@ -372,9 +453,7 @@ export default function NguoiDungList() {
         </button>
       )
       if (startPage > 2) {
-        buttons.push(
-          <span key="start-ellipsis" className="page-ellipsis">…</span>
-        )
+        buttons.push(<span key="start-ellipsis" className="page-ellipsis">…</span>)
       }
     }
 
@@ -392,9 +471,7 @@ export default function NguoiDungList() {
 
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
-        buttons.push(
-          <span key="end-ellipsis" className="page-ellipsis">…</span>
-        )
+        buttons.push(<span key="end-ellipsis" className="page-ellipsis">…</span>)
       }
       buttons.push(
         <button
@@ -415,7 +492,7 @@ export default function NguoiDungList() {
 
   const handleAdd = () => {
     setModalMode('add')
-    setEditData({ trang_thai: 1 })
+    setEditData({ trang_thai: 1, ma_vaitro: roles[0]?.ma || '' })
     setShowModal(true)
   }
 
@@ -442,8 +519,8 @@ export default function NguoiDungList() {
       showToast('Vui lòng nhập họ tên!', 'error')
       return
     }
-    if (!form.vai_tro?.trim()) {
-      showToast('Vui lòng nhập vai trò!', 'error')
+    if (!form.ma_vaitro?.trim()) {
+      showToast('Vui lòng chọn vai trò!', 'error')
       return
     }
     if (form.trang_thai !== 0 && form.trang_thai !== 1) {
@@ -635,7 +712,6 @@ export default function NguoiDungList() {
                           }}
                         >
                           {visiblePasswords[item.id_nguoi_dung] ? (
-                            // Eye-off
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="16"
@@ -651,7 +727,6 @@ export default function NguoiDungList() {
                               <line x1="1" y1="1" x2="23" y2="23" />
                             </svg>
                           ) : (
-                            // Eye
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="16"
@@ -675,7 +750,7 @@ export default function NguoiDungList() {
                   </td>
 
                   <td>{item.ho_ten ?? '—'}</td>
-                  <td>{item.vai_tro ?? '—'}</td>
+                  <td>{item.ma_vaitro ?? '—'}</td>
                   <td>
                     <span
                       className={`status-badge ${
@@ -756,6 +831,7 @@ export default function NguoiDungList() {
         <NguoiDungModal
           mode={modalMode}
           data={editData}
+          roles={roles}
           onClose={() => setShowModal(false)}
           onSave={handleSave}
         />
@@ -765,6 +841,7 @@ export default function NguoiDungList() {
       {detailItem && (
         <NguoiDungDetailModal
           data={detailItem}
+          roles={roles}
           onClose={() => setDetailItem(null)}
         />
       )}
