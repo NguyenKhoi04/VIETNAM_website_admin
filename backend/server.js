@@ -2,10 +2,14 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // 1. Cấu hình thông tin tài khoản MySQL
 const db = mysql.createConnection({
@@ -574,6 +578,92 @@ app.delete('/api/cau-hoi-bai-doc/:id', (req, res) => {
   db.query('DELETE FROM cau_hoi_bai_doc WHERE id = ?', [req.params.id], (err) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: 'Xóa câu hỏi thành công!' });
+  });
+});
+
+
+// 2. Cấu hình thư mục lưu ảnh upload
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Mở public thư mục uploads để frontend xem được ảnh qua URL: http://localhost:5000/uploads/...
+app.use('/uploads', express.static(uploadDir));
+
+// Cấu hình lưu file với tên duy nhất
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, uniqueName);
+  }
+});
+const upload = multer({ storage });
+//Bảng tuần học lớp 1
+// ── GET Danh sách ──────────────────────────────────────────────────────────
+app.get('/api/tuan-hoc-lop-1', (req, res) => {
+  const sql = 'SELECT id, ten_tuan, thu_tu, so_tuan, hinh_anh FROM tuan_hoc_lop1 ORDER BY thu_tu ASC';
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+// ── GET Chi tiết ───────────────────────────────────────────────────────────
+app.get('/api/tuan-hoc-lop-1/:id', (req, res) => {
+  const sql = 'SELECT id, ten_tuan, thu_tu, so_tuan, hinh_anh FROM tuan_hoc_lop1 WHERE id = ?';
+  db.query(sql, [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ message: 'Không tìm thấy tuần học' });
+    res.json(results[0]);
+  });
+});
+
+// ── POST Thêm mới (hỗ trợ cả JSON lẫn Upload file) ─────────────────────────
+app.post('/api/tuan-hoc-lop-1', upload.single('hinh_anh'), (req, res) => {
+  const { so_tuan, ten_tuan, thu_tu } = req.body;
+  
+  // Nếu có upload file mới thì lấy đường dẫn /uploads/..., ngược lại lấy URL chuỗi từ body (nếu có)
+  const hinh_anh = req.file ? `/uploads/${req.file.filename}` : (req.body.hinh_anh || null);
+
+  const sql = `INSERT INTO tuan_hoc_lop1 (so_tuan, ten_tuan, hinh_anh, thu_tu) VALUES (?, ?, ?, ?)`;
+  db.query(sql, [Number(so_tuan), ten_tuan, hinh_anh, Number(thu_tu) || 1], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ message: 'Thêm tuần học thành công!', id: result.insertId, hinh_anh });
+  });
+});
+
+// ── PUT Cập nhật ───────────────────────────────────────────────────────────
+app.put('/api/tuan-hoc-lop-1/:id', upload.single('hinh_anh'), (req, res) => {
+  const { so_tuan, ten_tuan, thu_tu } = req.body;
+
+  // Nếu người dùng chọn ảnh mới -> lưu đường dẫn file mới. Nếu không chọn -> giữ nguyên ảnh cũ được gửi lên
+  let sql, params;
+  if (req.file) {
+    const hinh_anh = `/uploads/${req.file.filename}`;
+    sql = `UPDATE tuan_hoc_lop1 SET so_tuan=?, ten_tuan=?, hinh_anh=?, thu_tu=? WHERE id = ?`;
+    params = [Number(so_tuan), ten_tuan, hinh_anh, Number(thu_tu) || 1, req.params.id];
+  } else {
+    // Không có file mới, chỉ update các trường text (và hinh_anh cũ nếu có gửi)
+    sql = `UPDATE tuan_hoc_lop1 SET so_tuan=?, ten_tuan=?, hinh_anh=COALESCE(?, hinh_anh), thu_tu=? WHERE id = ?`;
+    params = [Number(so_tuan), ten_tuan, req.body.hinh_anh || null, Number(thu_tu) || 1, req.params.id];
+  }
+
+  db.query(sql, params, (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Cập nhật tuần học thành công!' });
+  });
+});
+
+// ── DELETE Xóa ─────────────────────────────────────────────────────────────
+app.delete('/api/tuan-hoc-lop-1/:id', (req, res) => {
+  db.query('DELETE FROM tuan_hoc_lop1 WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Xóa tuần học thành công!' });
   });
 });
 

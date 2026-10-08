@@ -40,5 +40,10 @@ node server.js
         ↓
 ⑥ Bấm  ❌ Tắt bôi từ khó  khi xong
 
+
+
+cài đặt hỗ trợ multer+ ảnh
+npm install multer cors
+
 Cách chạy: npm run dev
 
