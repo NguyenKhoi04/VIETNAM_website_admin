@@ -667,6 +667,71 @@ app.delete('/api/tuan-hoc-lop-1/:id', (req, res) => {
   });
 });
 
+// Cũng giống tuần học lớp 1  h file bai hoc lớp 1
+
+// ── GET Danh sách ──────────────────────────────────────────────────────────
+app.get('/api/baihoc-lop1', (req, res) => {
+  const sql = 'SELECT id, tuan_id,ten_bai_hoc,hinh_anh_bai,thu_tu FROM bai_hoc_lop1_phan1 ORDER BY thu_tu ASC';
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+// ── GET Chi tiết ───────────────────────────────────────────────────────────
+app.get('/api/baihoc-lop1/:id', (req, res) => {
+  const sql = 'SELECT id, tuan_id,ten_bai_hoc,hinh_anh_bai,thu_tu FROM bai_hoc_lop1_phan1 WHERE id = ?';
+  db.query(sql, [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ message: 'Không tìm thấy tuần học' });
+    res.json(results[0]);
+  });
+});
+
+// ── POST Thêm mới (hỗ trợ cả JSON lẫn Upload file) ─────────────────────────
+app.post('/api/baihoc-lop1', upload.single('hinh_anh_bai'), (req, res) => {
+  const { tuan_id, ten_bai_hoc, thu_tu } = req.body;
+  
+  // Nếu có upload file mới thì lấy đường dẫn /uploads/..., ngược lại lấy URL chuỗi từ body (nếu có)
+  const hinh_anh_bai = req.file ? `/uploads/${req.file.filename}` : (req.body.hinh_anh_bai || null);
+
+  const sql = `INSERT INTO bai_hoc_lop1_phan1 (tuan_id, ten_bai_hoc, hinh_anh_bai, thu_tu) VALUES (?, ?, ?, ?)`;
+  db.query(sql, [Number(tuan_id), ten_bai_hoc, hinh_anh_bai, Number(thu_tu) || 1], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ message: 'Thêm tuần học thành công!', id: result.insertId, hinh_anh_bai });
+  });
+});
+
+// ── PUT Cập nhật ───────────────────────────────────────────────────────────
+app.put('/api/baihoc-lop1/:id', upload.single('hinh_anh_bai'), (req, res) => {
+  const { tuan_id, ten_bai_hoc, thu_tu } = req.body;
+
+  // Nếu người dùng chọn ảnh mới -> lưu đường dẫn file mới. Nếu không chọn -> giữ nguyên ảnh cũ được gửi lên
+  let sql, params;
+  if (req.file) {
+    const hinh_anh_bai = `/uploads/${req.file.filename}`;
+    sql = `UPDATE bai_hoc_lop1_phan1 SET tuan_id=?, ten_bai_hoc=?, hinh_anh_bai=?, thu_tu=? WHERE id = ?`;
+    params = [Number(tuan_id), ten_bai_hoc, hinh_anh_bai, Number(thu_tu) || 1, req.params.id];
+  } else {
+    // Không có file mới, chỉ update các trường text (và hinh_anh cũ nếu có gửi)
+    sql = `UPDATE bai_hoc_lop1_phan1 SET tuan_id=?, ten_bai_hoc=?, hinh_anh_bai=COALESCE(?, hinh_anh_bai), thu_tu=? WHERE id = ?`;
+    params = [Number(tuan_id), ten_bai_hoc, req.body.hinh_anh_bai || null, Number(thu_tu) || 1, req.params.id];
+  }
+
+  db.query(sql, params, (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Cập nhật tuần học thành công!' });
+  });
+});
+
+// ── DELETE Xóa ─────────────────────────────────────────────────────────────
+app.delete('/api/baihoc-lop1/:id', (req, res) => {
+  db.query('DELETE FROM bai_hoc_lop1_phan1 WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Xóa tuần học thành công!' });
+  });
+});
+
 // ============================================================
 // Khởi chạy server tại cổng 5000
 const PORT = 5000;

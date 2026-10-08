@@ -1,17 +1,18 @@
 // ============================================================================
-// TuanHocList.tsx – Quản lý danh sách tuần học lớp 1
+// BaihocLop1List.tsx – Quản lý danh sách bài học lớp 1
 // ============================================================================
 import React, { useState, useEffect } from 'react'
 import './tuanhoc_lop1.css'
 import { UploadImg } from './UploadImg'
 
 // ── Types ──────────────────────────────────────────────────────────────────
-interface TuanHoc {
-  id: number
-  ten_tuan: string
-  hinh_anh: string
-  so_tuan: number
-  thu_tu: number
+interface BaihocLop1 {
+  id: number,
+  tuan_id: number,
+  thu_tu: number,
+  ten_bai_hoc: string,
+  hinh_anh_bai: string,
+  
 }
 
 // ── Cấu hình URL backend ───────────────────────────────────────────────────
@@ -89,35 +90,35 @@ function IconDelete() {
 }
 
 // ── Modal Chi tiết ─────────────────────────────────────────────────────────
-function TuanHocDetailModal({ data, onClose }: { data: TuanHoc; onClose: () => void }) {
+function BaihocLop1DetailModal({ data, onClose }: { data: BaihocLop1; onClose: () => void }) {
   return (
     <div className="bai-doc-modal-overlay" onClick={onClose}>
       <div className="bai-doc-modal" onClick={e => e.stopPropagation()}>
         <div className="bai-doc-modal-header">
-          <span>Chi tiết tuần học cho lớp 1</span>
+          <span>Chi tiết bài học đọc cho lớp 1</span>
           <button className="bai-doc-modal-close" onClick={onClose}>✕</button>
         </div>
         <div className="bai-doc-modal-body">
           <div className="bd-form-grid">
             <div className="bd-form-group">
-              <label>Số tuần</label>
-              <input type="number" value={data.so_tuan ?? ''} disabled />
+              <label>bài học</label>
+              <input type="number" value={data.tuan_id ?? ''} disabled />
             </div>
             <div className="bd-form-group">
-              <label>Tên tuần</label>
-              <input type="text" value={data.ten_tuan ?? ''} disabled />
+              <label>Tên bài học</label>
+              <input type="text" value={data.ten_bai_hoc ?? ''} disabled />
             </div>
             <div className="bd-form-group">
               <label>Thứ tự</label>
               <input type="number" value={data.thu_tu ?? ''} disabled />
             </div>
             <div className="bd-form-group" style={{ gridColumn: 'span 2' }}>
-              <label>Hình ảnh tuần</label>
-              {data.hinh_anh ? (
+              <label>Hình ảnh bài học</label>
+              {data.hinh_anh_bai ? (
                 <div style={{ marginTop: 8 }}>
                   <img
-                    src={getImageUrl(data.hinh_anh)}
-                    alt={data.ten_tuan}
+                    src={getImageUrl(data.hinh_anh_bai)}
+                    alt={data.ten_bai_hoc}
                     style={{
                       maxHeight: 180,
                       maxWidth: '100%',
@@ -144,13 +145,13 @@ function TuanHocDetailModal({ data, onClose }: { data: TuanHoc; onClose: () => v
 // ── Modal Thêm / Sửa ───────────────────────────────────────────────────────
 interface ModalProps {
   mode: 'add' | 'edit'
-  data: Partial<TuanHoc>
+  data: Partial<BaihocLop1>
   onClose: () => void
-  onSave: (data: Partial<TuanHoc>, file: File | null) => void
+  onSave: (data: Partial<BaihocLop1>, file: File | null) => void
 }
 
-function TuanHocModal({ mode, data, onClose, onSave }: ModalProps) {
-  const [form, setForm] = useState<Partial<TuanHoc>>(data)
+function BaihocLop1Modal({ mode, data, onClose, onSave }: ModalProps) {
+  const [form, setForm] = useState<Partial<BaihocLop1>>(data)
   const [anhBai, setAnhBai] = useState<File | null>(null)
 
   // Cập nhật lại form khi chọn item khác
@@ -159,7 +160,7 @@ function TuanHocModal({ mode, data, onClose, onSave }: ModalProps) {
     setAnhBai(null)
   }, [data])
 
-  const set = (key: keyof TuanHoc, val: string | number) =>
+  const set = (key: keyof BaihocLop1, val: string | number) =>
     setForm(prev => ({ ...prev, [key]: val }))
 
   const handleSaveModal = () => {
@@ -170,29 +171,29 @@ function TuanHocModal({ mode, data, onClose, onSave }: ModalProps) {
     <div className="bai-doc-modal-overlay" onClick={onClose}>
       <div className="bai-doc-modal" onClick={e => e.stopPropagation()}>
         <div className="bai-doc-modal-header">
-          <span>{mode === 'add' ? '➕ Thêm tuần học mới' : '✏️ Sửa tuần học'}</span>
+          <span>{mode === 'add' ? '➕ Thêm bài học mới' : '✏️ Sửa bài học'}</span>
           <button className="bai-doc-modal-close" onClick={onClose}>✕</button>
         </div>
 
         <div className="bai-doc-modal-body">
           <div className="bd-form-grid">
             <div className="bd-form-group">
-              <label>Số tuần <span className="bd-required">*</span></label>
+              <label>bài học<span className="bd-required">*</span></label>
               <input
                 type="number"
-                value={form.so_tuan ?? ''}
+                value={form.tuan_id ?? ''}
                 min={1}
-                onChange={e => set('so_tuan', Number(e.target.value))}
+                onChange={e => set('tuan_id', Number(e.target.value))}
                 placeholder="Ví dụ: 1"
               />
             </div>
 
             <div className="bd-form-group">
-              <label>Tên tuần <span className="bd-required">*</span></label>
+              <label>Tên bài học <span className="bd-required">*</span></label>
               <input
                 type="text"
-                value={form.ten_tuan ?? ''}
-                onChange={e => set('ten_tuan', e.target.value)}
+                value={form.ten_bai_hoc ?? ''}
+                onChange={e => set('ten_bai_hoc', e.target.value)}
                 placeholder="Ví dụ: Tuần 1 - Những bài học đầu tiên"
               />
             </div>
@@ -209,15 +210,15 @@ function TuanHocModal({ mode, data, onClose, onSave }: ModalProps) {
             </div>
 
             <div className="bd-form-group" style={{ gridColumn: 'span 2' }}>
-              <label>Hình ảnh tuần</label>
-              <UploadImg label="Chọn hình tuần học" value={anhBai} onChange={setAnhBai} />
+              <label>Hình ảnh bài học</label>
+              <UploadImg label="Chọn hình bài học" value={anhBai} onChange={setAnhBai} />
 
               {/* Preview ảnh hiện tại nếu đang edit và chưa chọn file mới */}
-              {!anhBai && form.hinh_anh && (
+              {!anhBai && form.hinh_anh_bai && (
                 <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontSize: 13, color: '#64748b' }}>Ảnh hiện tại:</span>
                   <img
-                    src={getImageUrl(form.hinh_anh)}
+                    src={getImageUrl(form.hinh_anh_bai)}
                     alt="Ảnh tuần hiện tại"
                     style={{
                       width: 50,
@@ -236,7 +237,7 @@ function TuanHocModal({ mode, data, onClose, onSave }: ModalProps) {
         <div className="bai-doc-modal-footer">
           <button className="bd-btn-cancel" onClick={onClose}>Huỷ</button>
           <button className="bd-btn-save" onClick={handleSaveModal}>
-            {mode === 'add' ? '➕ Thêm tuần học' : '💾 Lưu thay đổi'}
+            {mode === 'add' ? '➕ Thêm bài học' : '💾 Lưu thay đổi'}
           </button>
         </div>
       </div>
@@ -258,9 +259,9 @@ function ConfirmDelete({
     <div className="bai-doc-modal-overlay" onClick={onCancel}>
       <div className="bai-doc-modal bd-confirm" onClick={e => e.stopPropagation()}>
         <div className="bd-confirm-icon">🗑️</div>
-        <div className="bd-confirm-title">Xoá tuần học</div>
+        <div className="bd-confirm-title">Xoá bài học</div>
         <div className="bd-confirm-msg">
-          Bạn có chắc muốn xoá tuần học <strong>"{ten_tuan}"</strong>?<br />
+          Bạn có chắc muốn xoá bài học <strong>"{ten_tuan}"</strong>?<br />
           Hành động này không thể hoàn tác.
         </div>
         <div className="bd-confirm-actions">
@@ -273,8 +274,8 @@ function ConfirmDelete({
 }
 
 // ── Main Component ─────────────────────────────────────────────────────────
-export default function TuanHocList() {
-  const [list, setList] = useState<TuanHoc[]>([])
+export default function BaihocLop1List() {
+  const [list, setList] = useState<BaihocLop1[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -282,9 +283,9 @@ export default function TuanHocList() {
   // Modal
   const [showModal, setShowModal] = useState(false)
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add')
-  const [detailItem, setDetailItem] = useState<TuanHoc | null>(null)
-  const [editData, setEditData] = useState<Partial<TuanHoc>>({})
-  const [deleteItem, setDeleteItem] = useState<TuanHoc | null>(null)
+  const [detailItem, setDetailItem] = useState<BaihocLop1 | null>(null)
+  const [editData, setEditData] = useState<Partial<BaihocLop1>>({})
+  const [deleteItem, setDeleteItem] = useState<BaihocLop1 | null>(null)
 
   // Toast
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
@@ -302,9 +303,9 @@ export default function TuanHocList() {
   const fetchList = () => {
     setLoading(true)
     setError('')
-    fetch(`${API_BASE}/api/tuan-hoc-lop-1`)
+    fetch(`${API_BASE}/api/baihoc-lop1`)
       .then(r => r.json())
-      .then((data: TuanHoc[]) => setList(Array.isArray(data) ? data : []))
+      .then((data: BaihocLop1[]) => setList(Array.isArray(data) ? data : []))
       .catch(err => setError('Không thể kết nối API: ' + err.message))
       .finally(() => setLoading(false))
   }
@@ -319,7 +320,7 @@ export default function TuanHocList() {
 
   // ── Filter client-side theo tên tuần ──
   const filteredList = list.filter(item =>
-    item.ten_tuan?.toLowerCase().includes(searchTerm.toLowerCase())
+    item.ten_bai_hoc?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   // ── Phân trang ──
@@ -386,41 +387,41 @@ export default function TuanHocList() {
   // ── Handlers ──
   const handleAdd = () => {
     setModalMode('add')
-    setEditData({ thu_tu: 1, so_tuan: 1 })
+    setEditData({ thu_tu: 1, tuan_id: 1 })
     setShowModal(true)
   }
 
-  const handleEdit = (item: TuanHoc) => {
+  const handleEdit = (item: BaihocLop1) => {
     setModalMode('edit')
     setEditData({ ...item })
     setShowModal(true)
   }
 
-  const handleSave = async (form: Partial<TuanHoc>, file: File | null) => {
-    if (!form.so_tuan) {
-      showToast('Vui lòng nhập số tuần!', 'error')
+  const handleSave = async (form: Partial<BaihocLop1>, file: File | null) => {
+    if (!form.tuan_id) {
+      showToast('Vui lòng nhập bài học!', 'error')
       return
     }
-    if (!form.ten_tuan?.trim()) {
-      showToast('Vui lòng nhập tên tuần!', 'error')
+    if (!form.ten_bai_hoc?.trim()) {
+      showToast('Vui lòng nhập tên bài học!', 'error')
       return
     }
 
     try {
       const isAdd = modalMode === 'add'
       const url = isAdd
-        ? `${API_BASE}/api/tuan-hoc-lop-1`
-        : `${API_BASE}/api/tuan-hoc-lop-1/${form.id}`
+        ? `${API_BASE}/api/baihoc-lop1`
+        : `${API_BASE}/api/baihoc-lop1/${form.id}`
 
       let response: Response
 
       // Nếu có chọn file ảnh mới -> dùng FormData để gửi multipart/form-data
       if (file) {
         const formData = new FormData()
-        formData.append('so_tuan', String(form.so_tuan))
-        formData.append('ten_tuan', form.ten_tuan.trim())
+        formData.append('tuan_id', String(form.tuan_id))
+        formData.append('ten_bai_hoc', form.ten_bai_hoc.trim())
         formData.append('thu_tu', String(form.thu_tu ?? 1))
-        formData.append('hinh_anh', file)
+        formData.append('hinh_anh_bai', file)
 
         response = await fetch(url, {
           method: isAdd ? 'POST' : 'PUT',
@@ -436,9 +437,9 @@ export default function TuanHocList() {
       }
 
       const d = await response.json()
-      if (!response.ok) throw new Error(d.error || d.message || `Lỗi ${isAdd ? 'thêm' : 'cập nhật'} tuần học`)
+      if (!response.ok) throw new Error(d.error || d.message || `Lỗi ${isAdd ? 'thêm' : 'cập nhật'} bài học`)
 
-      showToast(isAdd ? 'Thêm tuần học thành công!' : 'Cập nhật thành công!')
+      showToast(isAdd ? 'Thêm bài học thành công!' : 'Cập nhật thành công!')
       setShowModal(false)
       fetchList()
     } catch (e: unknown) {
@@ -449,12 +450,12 @@ export default function TuanHocList() {
   const handleDeleteConfirm = async () => {
     if (!deleteItem) return
     try {
-      const r = await fetch(`${API_BASE}/api/tuan-hoc-lop-1/${deleteItem.id}`, {
+      const r = await fetch(`${API_BASE}/api/baihoc-lop1/${deleteItem.id}`, {
         method: 'DELETE',
       })
       const d = await r.json()
-      if (!r.ok) throw new Error(d.error || 'Lỗi xoá tuần học')
-      showToast('Đã xoá tuần học!')
+      if (!r.ok) throw new Error(d.error || 'Lỗi xoá bài học')
+      showToast('Đã xoá bài học!')
       setDeleteItem(null)
       fetchList()
     } catch (e: unknown) {
@@ -467,8 +468,8 @@ export default function TuanHocList() {
       {/* Header */}
       <div className="bai-doc-list-header">
         <div>
-          <h1 className="bai-doc-list-title">📋 Danh sách tuần học</h1>
-          <p className="bai-doc-list-sub">Quản lý toàn bộ tuần học lớp 1 trong hệ thống</p>
+          <h1 className="bai-doc-list-title">📋 Danh sách bài học</h1>
+          <p className="bai-doc-list-sub">Quản lý toàn bộ bài học lớp 1 trong hệ thống</p>
         </div>
         <button id="btn-them-bai-doc" className="bd-btn-primary" onClick={handleAdd}>
           <svg
@@ -485,7 +486,7 @@ export default function TuanHocList() {
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          Thêm tuần học
+          Thêm bài học
         </button>
       </div>
 
@@ -493,14 +494,14 @@ export default function TuanHocList() {
       <div className="bai-doc-filters">
         <input
           type="text"
-          placeholder="Tìm theo tên tuần..."
+          placeholder="Tìm theo tên bài học..."
           className="bai-doc-filter-search"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
           style={{ minWidth: 260 }}
         />
         <span className="bai-doc-count">
-          {loading ? '...' : `${filteredList.length} tuần học`}
+          {loading ? '...' : `${filteredList.length} bài học`}
         </span>
       </div>
 
@@ -520,9 +521,9 @@ export default function TuanHocList() {
           <thead>
             <tr>
               <th>ID</th>
+              <th>Tên bài học</th>
               <th>Tên tuần</th>
-              <th>Số tuần</th>
-              <th>Hình ảnh</th>
+              <th>Hình ảnh bài học</th>
               <th>Thứ tự</th>
               <th className="bd-actions-col">Thao tác</th>
             </tr>
@@ -544,8 +545,8 @@ export default function TuanHocList() {
                     <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
                     <div>
                       {searchTerm
-                        ? 'Không tìm thấy tuần học nào phù hợp'
-                        : 'Chưa có tuần học nào'}
+                        ? 'Không tìm thấy bài học nào phù hợp'
+                        : 'Chưa có bài học nào'}
                     </div>
                     {!searchTerm && (
                       <button
@@ -553,7 +554,7 @@ export default function TuanHocList() {
                         style={{ marginTop: 14 }}
                         onClick={handleAdd}
                       >
-                        ➕ Thêm tuần học đầu tiên
+                        ➕ Thêm bài học đầu tiên
                       </button>
                     )}
                   </div>
@@ -563,15 +564,15 @@ export default function TuanHocList() {
               currentData.map(item => (
                 <tr key={item.id} className="bd-tr-hover">
                   <td className="bd-td-id">{item.id}</td>
-                  <td className="bd-td-name">{item.ten_tuan}</td>
+                  <td className="bd-td-name">{item.ten_bai_hoc}</td>
                   <td>
-                    <span className="bd-badge bd-badge-lop">Tuần {item.so_tuan}</span>
+                    <span className="bd-badge bd-badge-lop">{item.tuan_id}</span>
                   </td>
                   <td>
-                    {item.hinh_anh ? (
+                    {item.hinh_anh_bai ? (
                       <img
-                        src={getImageUrl(item.hinh_anh)}
-                        alt={item.ten_tuan}
+                        src={getImageUrl(item.hinh_anh_bai)}
+                        alt={item.ten_bai_hoc}
                         style={{
                           width: 100,
                           height: 100,
@@ -587,12 +588,12 @@ export default function TuanHocList() {
                       <span style={{ color: '#94a3b8' }}>—</span>
                     )}
                   </td>
-                  <td style={{ textAlign: 'center' }}>{item.thu_tu ?? '—'}</td>
+                  <td style={{ textAlign: 'left' }}>{item.thu_tu ?? '—'}</td>
                   <td className="bd-td-actions">
                     <button
                       id={`btn-detail-${item.id}`}
                       className="bd-icon-btn bd-icon-btn-detail"
-                      title="Xem chi tiết tuần học"
+                      title="Xem chi tiết bài học"
                       onClick={() => setDetailItem(item)}
                     >
                       <IconDetail />
@@ -600,7 +601,7 @@ export default function TuanHocList() {
                     <button
                       id={`btn-edit-${item.id}`}
                       className="bd-icon-btn bd-icon-btn-edit"
-                      title="Sửa tuần học"
+                      title="Sửa bài học"
                       onClick={() => handleEdit(item)}
                     >
                       <IconEdit />
@@ -608,7 +609,7 @@ export default function TuanHocList() {
                     <button
                       id={`btn-delete-${item.id}`}
                       className="bd-icon-btn bd-icon-btn-delete"
-                      title="Xóa tuần học"
+                      title="Xóa bài học"
                       onClick={() => setDeleteItem(item)}
                     >
                       <IconDelete />
@@ -624,7 +625,7 @@ export default function TuanHocList() {
         {!loading && filteredList.length > 0 && totalPages > 1 && (
           <div className="pagination">
             <div className="pagination-info">
-              Hiển thị {start + 1}–{Math.min(start + pageSize, filteredList.length)} / {filteredList.length} tuần học
+              Hiển thị {start + 1}–{Math.min(start + pageSize, filteredList.length)} / {filteredList.length} bài học
             </div>
             <div className="pagination-controls">
               <button
@@ -651,7 +652,7 @@ export default function TuanHocList() {
 
       {/* Modal Thêm / Sửa */}
       {showModal && (
-        <TuanHocModal
+        <BaihocLop1Modal
           mode={modalMode}
           data={editData}
           onClose={() => setShowModal(false)}
@@ -661,7 +662,7 @@ export default function TuanHocList() {
 
       {/* Modal Chi tiết */}
       {detailItem && (
-        <TuanHocDetailModal
+        <BaihocLop1DetailModal
           data={detailItem}
           onClose={() => setDetailItem(null)}
         />
@@ -670,7 +671,7 @@ export default function TuanHocList() {
       {/* Confirm Delete */}
       {deleteItem && (
         <ConfirmDelete
-          ten_tuan={deleteItem.ten_tuan}
+          ten_tuan={deleteItem.ten_bai_hoc}
           onConfirm={handleDeleteConfirm}
           onCancel={() => setDeleteItem(null)}
         />

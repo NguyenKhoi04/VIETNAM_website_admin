@@ -19,6 +19,7 @@ import {
 } from "../data/mockData";
 import NguoiDungList from "./user/nguoidung";
 import TuanHocList from "./tapdoc/tuanhoc_lop1";
+import BaihocLop1List from "./tapdoc/baihoc_lop1";
 
 export default function TrangChu() {
   const navigate = useNavigate();
@@ -173,6 +174,9 @@ export default function TrangChu() {
 
       case "tuanhoc_lop1":
         return <TuanHocList />;
+      
+        case "baihoc_lop1":
+        return <BaihocLop1List />;
 
       case "ky-nang":
       case "tap-doc":
