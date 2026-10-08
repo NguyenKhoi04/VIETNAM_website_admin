@@ -41,9 +41,9 @@ export default function Sidebar({ isOpen, activeItem, onSelect }: SidebarProps) 
           </div>
 
           {hasChildren && (
-            <div
+           <div
               className="sidebar-submenu"
-              style={{ maxHeight: isExpanded ? `${countLeaves(item) * 44}px` : '0' }}
+              style={{ maxHeight: isExpanded ? '1000px' : '0' }}
             >
               {item.children!.map(child => renderItem(child, 1))}
             </div>
@@ -68,9 +68,9 @@ export default function Sidebar({ isOpen, activeItem, onSelect }: SidebarProps) 
           </div>
 
           {hasChildren && (
-            <div
+           <div
               className="sidebar-submenu sidebar-submenu-l2"
-              style={{ maxHeight: expanded.includes(item.id) ? `${item.children!.length * 40}px` : '0' }}
+              style={{ maxHeight: expanded.includes(item.id) ? '1000px' : '0' }}
             >
               {item.children!.map(child => renderItem(child, 2))}
             </div>
@@ -116,7 +116,7 @@ export default function Sidebar({ isOpen, activeItem, onSelect }: SidebarProps) 
             <div
               className="sidebar-zone-body"
               style={{
-                maxHeight: isZoneCollapsed ? '0' : `${countLeavesInZone(zone.items) * 48}px`,
+                maxHeight: isZoneCollapsed ? '0' : '5000px',
                 overflow: 'hidden',
                 transition: 'max-height 0.35s ease',
               }}

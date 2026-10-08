@@ -86,7 +86,7 @@ function IconDelete() {
 }
 
 // ── Modal Chi tiết ─────────────────────────────────────────────────────
-function NguoiDungDetailModal({ data, roles, onClose }: { data: NguoiDung; roles: VaiTro[]; onClose: () => void }) {
+function NguoiDungDetailModal({ data, onClose }: { data: NguoiDung; onClose: () => void }) {
   return (
     <div className="users-modal-overlay" onClick={onClose}>
       <div className="users-modal" onClick={e => e.stopPropagation()}>
@@ -253,31 +253,13 @@ function NguoiDungModal({ mode, data, roles, onClose, onSave }: ModalProps) {
 
             <div className="bd-form-group">
               <label>Trạng thái <span className="bd-required">*</span></label>
-              <div className="bd-select-wrapper">
-                <select
-                  className="bd-select-rounded"
-                  value={form.trang_thai ?? 1}
-                  onChange={e => set('trang_thai', Number(e.target.value))}
-                >
-                  <option value={1}>Hoạt động</option>
-                  <option value={0}>Không hoạt động</option>
-                </select>
-                {/* Mũi tên custom */}
-                <span className="bd-select-arrow">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </span>
-              </div>
+              <select
+                value={form.trang_thai ?? 1}
+                onChange={e => set('trang_thai', Number(e.target.value))}
+              >
+                <option value={1}>Hoạt động</option>
+                <option value={0}>Không hoạt động</option>
+              </select>
             </div>
             <div className="bd-form-group">
               <label>Ngày tạo</label>
@@ -350,7 +332,7 @@ export default function NguoiDungList() {
   const [searchTerm, setSearchTerm] = useState('')
   const [deleteItem, setDeleteItem] = useState<NguoiDung | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
-  
+
   // Danh sách vai trò (kèm giá trị mặc định phòng trường hợp API /api/roles chưa có)
   const [roles, setRoles] = useState<VaiTro[]>([
     { id: 1, ma: 'ADMIN', ten_vai_tro: 'Quản trị viên' },
@@ -753,9 +735,8 @@ export default function NguoiDungList() {
                   <td>{item.ma_vaitro ?? '—'}</td>
                   <td>
                     <span
-                      className={`status-badge ${
-                        item.trang_thai === 1 ? 'status-active' : 'status-inactive'
-                      }`}
+                      className={`status-badge ${item.trang_thai === 1 ? 'status-active' : 'status-inactive'
+                        }`}
                     >
                       {item.trang_thai === 1 ? '● Hoạt động' : '○ Không hoạt động'}
                     </span>
@@ -841,7 +822,6 @@ export default function NguoiDungList() {
       {detailItem && (
         <NguoiDungDetailModal
           data={detailItem}
-          roles={roles}
           onClose={() => setDetailItem(null)}
         />
       )}
@@ -858,9 +838,8 @@ export default function NguoiDungList() {
       {/* Toast */}
       {toast && (
         <div
-          className={`users-toast ${
-            toast.type === 'error' ? 'toast-error' : 'toast-success'
-          }`}
+          className={`users-toast ${toast.type === 'error' ? 'toast-error' : 'toast-success'
+            }`}
         >
           {toast.type === 'success' ? '✅' : '❌'} {toast.msg}
         </div>

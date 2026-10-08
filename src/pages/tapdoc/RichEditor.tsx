@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 interface RichEditorProps {
   value: string
@@ -57,9 +58,9 @@ export function RichEditor({
         <button className="rich-toolbar-btn" title="In nghiêng" onMouseDown={e => { e.preventDefault(); exec('italic') }}><i>I</i></button>
         <button className="rich-toolbar-btn" title="Gạch chân" onMouseDown={e => { e.preventDefault(); exec('underline') }}><u>U</u></button>
         <div className="rich-toolbar-sep" />
-        <button className="rich-toolbar-btn" title="Căn trái" onMouseDown={e => { e.preventDefault(); exec('justifyLeft') }}>⬱</button>
-        <button className="rich-toolbar-btn" title="Căn giữa" onMouseDown={e => { e.preventDefault(); exec('justifyCenter') }}>☰</button>
-        <button className="rich-toolbar-btn" title="Căn phải" onMouseDown={e => { e.preventDefault(); exec('justifyRight') }}>⬰</button>
+        <button className="rich-toolbar-btn" title="Căn trái" onMouseDown={e => { e.preventDefault(); exec('justifyLeft') }}><i className="bi bi-text-left"></i></button>
+        <button className="rich-toolbar-btn" title="Căn giữa" onMouseDown={e => { e.preventDefault(); exec('justifyCenter') }}><i className="bi bi-text-center"></i></button>
+        <button className="rich-toolbar-btn" title="Căn phải" onMouseDown={e => { e.preventDefault(); exec('justifyRight') }}><i className="bi bi-text-right"></i></button>
         <div className="rich-toolbar-sep" />
         <button className="rich-toolbar-btn" title="Cỡ chữ lớn" onMouseDown={e => { e.preventDefault(); exec('fontSize', '5') }}>A+</button>
         <button className="rich-toolbar-btn" title="Cỡ chữ nhỏ" onMouseDown={e => { e.preventDefault(); exec('fontSize', '2') }}>A-</button>

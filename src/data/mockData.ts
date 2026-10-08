@@ -397,12 +397,13 @@ export const sidebarZones: SidebarZone[] = [
 
           {
             id: 'tap-doc-phan1',
-            label: 'Phần 1 – Âm / Vần / Câu',
+            label: 'Phần 1 – Đọc âm / từ / câu',
             icon: '🔤',
             children: [
-              { id: 'tap-doc-am', label: 'Âm', icon: '🔊' },
-              { id: 'tap-doc-van', label: 'Vần', icon: '📝' },
-              { id: 'tap-doc-cau', label: 'Câu', icon: '💬' },
+              { id: 'doan-van', label: 'Đoạn văn', icon: '🗒️' },
+              { id: 'tuanhoc-lop1', label: 'Tuần học dành riêng cho lớp 1 HK1', icon: '📜' },
+              { id: 'baihoc-lop1', label: 'Bài học dành riêng cho lớp 1 HK1', icon: '📜' },
+              { id: 'chu_am_van', label: 'Chữ, âm, vần', icon: '' },
             ],
           },
           {

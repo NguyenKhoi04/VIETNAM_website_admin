@@ -170,6 +170,8 @@ export default function TrangChu() {
       case "bai-doc-list":
         return <BaiDocList />;
 
+      
+
       case "ky-nang":
       case "tap-doc":
       case "tap-viet":
