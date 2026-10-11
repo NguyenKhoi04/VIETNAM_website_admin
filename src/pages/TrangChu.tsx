@@ -7,6 +7,7 @@ import DataTable from "../components/DataTable";
 import AddTapDoc from "./AddTapDoc";
 import BaiDocList from "./BaiDocList";
 import VaiTro from "./user/vaitro";
+import ChuAmVanLop1List from "./tapdoc/chuamvanlop1";
 import { API_ENDPOINTS } from "../config/apiConfig";
 import {
   baiHocList,
@@ -177,6 +178,9 @@ export default function TrangChu() {
       
         case "baihoc_lop1":
         return <BaihocLop1List />;
+
+        case "chu_am_van":
+        return <ChuAmVanLop1List />;
 
       case "ky-nang":
       case "tap-doc":

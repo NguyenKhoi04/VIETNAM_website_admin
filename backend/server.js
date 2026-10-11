@@ -732,6 +732,117 @@ app.delete('/api/baihoc-lop1/:id', (req, res) => {
   });
 });
 
+// bảng chu_am_van kết nối liên tiếp với bảng am_thanh_chu_am
+// ── GET Danh sách (Kết nối 3 bảng hiển thị đủ 13 cột) ──────────────────────
+app.get('/api/chu-am-van', (req, res) => {
+  const sql = `
+    SELECT 
+      b.tuan_id AS tuan_id,
+      c.id AS chu_am_id,
+      b.ten_bai_hoc AS ten_bai_hoc,
+      c.noi_dung AS noi_dung,
+      c.cach_doc AS cach_doc,
+      c.cach_doc_danh_van AS cach_doc_danh_van,
+      c.kieu_hien_thi AS kieu_hien_thi,
+      c.hinh_minh_hoa AS hinh_minh_hoa,
+      c.la_chu_cai AS la_chu_cai,
+      c.thanh_dieu AS thanh_dieu,
+      a.loai_am AS loai_am,
+      a.ma_key AS ma_key,
+      a.duong_dan AS duong_dan,
+      c.id AS id,
+      c.bai_hoc_id,
+      c.thu_tu
+    FROM chu_am_van c
+    LEFT JOIN bai_hoc_lop1_phan1 b ON c.bai_hoc_id = b.id
+    LEFT JOIN am_thanh_chu_am a ON c.id = a.chu_am_id
+    ORDER BY c.thu_tu ASC, a.thu_tu ASC
+  `;
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+// ── GET Chi tiết ───────────────────────────────────────────────────────────
+app.get('/api/chu-am-van/:id', (req, res) => {
+  const sql = `
+    SELECT 
+      b.tuan_id AS tuan_id,
+      c.id AS chu_am_id,
+      b.ten_bai_hoc AS ten_bai_hoc,
+      c.noi_dung AS noi_dung,
+      c.cach_doc AS cach_doc,
+      c.cach_doc_danh_van AS cach_doc_danh_van,
+      c.kieu_hien_thi AS kieu_hien_thi,
+      c.hinh_minh_hoa AS hinh_minh_hoa,
+      c.la_chu_cai AS la_chu_cai,
+      c.thanh_dieu AS thanh_dieu,
+      a.loai_am AS loai_am,
+      a.ma_key AS ma_key,
+      a.duong_dan AS duong_dan,
+      c.id AS id,
+      c.bai_hoc_id
+    FROM chu_am_van c
+    LEFT JOIN bai_hoc_lop1_phan1 b ON c.bai_hoc_id = b.id
+    LEFT JOIN am_thanh_chu_am a ON c.id = a.chu_am_id
+    WHERE c.id = ?
+  `;
+  db.query(sql, [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ message: 'Không tìm thấy chữ/âm/vần' });
+    res.json(results[0]);
+  });
+});
+
+// ── POST Thêm mới chữ/âm/vần ───────────────────────────────────────────────
+app.post('/api/chu-am-van', upload.single('hinh_minh_hoa'), (req, res) => {
+  const { bai_hoc_id, noi_dung, cach_doc, cach_doc_danh_van, kieu_hien_thi, la_chu_cai, thanh_dieu, thu_tu } = req.body;
+  const hinh_minh_hoa = req.file ? `/uploads/${req.file.filename}` : (req.body.hinh_minh_hoa || null);
+
+  const sql = `INSERT INTO chu_am_van (bai_hoc_id, noi_dung, cach_doc, cach_doc_danh_van, kieu_hien_thi, hinh_minh_hoa, la_chu_cai, thanh_dieu, thu_tu) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  db.query(sql, [Number(bai_hoc_id), noi_dung, cach_doc, cach_doc_danh_van, Number(kieu_hien_thi) || 1, hinh_minh_hoa, Number(la_chu_cai) || 0, thanh_dieu, Number(thu_tu) || 1], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ message: 'Thêm chữ/âm/vần thành công!', id: result.insertId, hinh_minh_hoa });
+  });
+});
+
+// ── PUT Cập nhật chữ/âm/vần ────────────────────────────────────────────────
+app.put('/api/chu-am-van/:id', upload.single('hinh_minh_hoa'), (req, res) => {
+  const { bai_hoc_id, noi_dung, cach_doc, cach_doc_danh_van, kieu_hien_thi, la_chu_cai, thanh_dieu, thu_tu } = req.body;
+
+  let sql, params;
+  if (req.file) {
+    const hinh_minh_hoa = `/uploads/${req.file.filename}`;
+    sql = `UPDATE chu_am_van SET bai_hoc_id=?, noi_dung=?, cach_doc=?, cach_doc_danh_van=?, kieu_hien_thi=?, hinh_minh_hoa=?, la_chu_cai=?, thanh_dieu=?, thu_tu=? WHERE id = ?`;
+    params = [Number(bai_hoc_id), noi_dung, cach_doc, cach_doc_danh_van, Number(kieu_hien_thi) || 1, hinh_minh_hoa, Number(la_chu_cai) || 0, thanh_dieu, Number(thu_tu) || 1, req.params.id];
+  } else {
+    sql = `UPDATE chu_am_van SET bai_hoc_id=?, noi_dung=?, cach_doc=?, cach_doc_danh_van=?, kieu_hien_thi=?, hinh_minh_hoa=COALESCE(?, hinh_minh_hoa), la_chu_cai=?, thanh_dieu=?, thu_tu=? WHERE id = ?`;
+    params = [Number(bai_hoc_id), noi_dung, cach_doc, cach_doc_danh_van, Number(kieu_hien_thi) || 1, req.body.hinh_minh_hoa || null, Number(la_chu_cai) || 0, thanh_dieu, Number(thu_tu) || 1, req.params.id];
+  }
+
+  db.query(sql, params, (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Cập nhật chữ/âm/vần thành công!' });
+  });
+});
+
+// ── DELETE Xóa chữ/âm/vần ──────────────────────────────────────────────────
+app.delete('/api/chu-am-van/:id', (req, res) => {
+  db.query('DELETE FROM chu_am_van WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Xóa chữ/âm/vần thành công!' });
+  });
+});
+
+
+
+
+
+
+
+
+
 // ============================================================
 // Khởi chạy server tại cổng 5000
 const PORT = 5000;

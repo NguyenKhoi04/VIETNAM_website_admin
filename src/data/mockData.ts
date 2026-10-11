@@ -400,9 +400,9 @@ export const sidebarZones: SidebarZone[] = [
             label: 'Phần 1 – Đọc âm / từ / câu',
             icon: '🔤',
             children: [
-              { id: 'tuanhoc_lop1', label: 'Tuần học dành riêng cho lớp 1 HK1', icon: '📜' },
-              { id: 'baihoc_lop1', label: 'Bài học dành riêng cho lớp 1 HK1', icon: '📜' },
-              { id: 'chu_am_van', label: 'Chữ, âm, vần', icon: '🗣️' },
+              { id: 'tuanhoc_lop1', label: 'Danh sách tuần học dành riêng cho lớp 1 HK1', icon: '📜' },
+              { id: 'baihoc_lop1', label: 'Danh sách bài học dành riêng cho lớp 1 HK1', icon: '📜' },
+              { id: 'chu_am_van', label: 'Danh sách Chữ/âm/vần và âm thanh bài đọc', icon: '🗣️' },
             ],
           },
           {
